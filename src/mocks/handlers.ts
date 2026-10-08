@@ -1,5 +1,6 @@
 import type { MeDto } from '@/features/auth/types';
 import { mockAccounts, mockMe } from './fixtures';
+import { attendanceMock } from './attendance';
 import { groupsMock, sessionsMock } from './groups';
 import { studentsMock } from './students';
 
@@ -216,6 +217,7 @@ export async function handleMockRequest(method: string, path: string, request: R
   const moduleResponse =
     studentsMock(method, path, body, new URL(request.url)) ??
     groupsMock(method, path, body, new URL(request.url)) ??
-    sessionsMock(method, path, body, new URL(request.url));
+    sessionsMock(method, path, body, new URL(request.url)) ??
+    attendanceMock(method, path, body);
   return moduleResponse ?? problem(404, 'mock-not-found', `لا يوجد mock لـ ${method} ${path}`);
 }
