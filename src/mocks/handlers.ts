@@ -1,5 +1,6 @@
 import type { MeDto } from '@/features/auth/types';
 import { mockAccounts, mockMe } from './fixtures';
+import { studentsMock } from './students';
 
 /**
  * Minimal in-process mock of the backend (backend-spec §10) for local review without the .NET API.
@@ -205,8 +206,12 @@ const routes: Record<string, Handler> = {
 
 export async function handleMockRequest(method: string, path: string, request: Request) {
   await new Promise((resolve) => setTimeout(resolve, LATENCY_MS));
+  const body =
+    method === 'GET' || method === 'DELETE'
+      ? {}
+      : ((await request.json().catch(() => ({}))) as Body);
   const handler = routes[`${method} ${path}`];
-  if (!handler) return problem(404, 'mock-not-found', `لا يوجد mock لـ ${method} ${path}`);
-  const body = method === 'GET' ? {} : ((await request.json().catch(() => ({}))) as Body);
-  return handler(body, request);
+  if (handler) return handler(body, request);
+  const moduleResponse = studentsMock(method, path, body, new URL(request.url));
+  return moduleResponse ?? problem(404, 'mock-not-found', `لا يوجد mock لـ ${method} ${path}`);
 }

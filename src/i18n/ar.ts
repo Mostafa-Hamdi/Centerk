@@ -46,6 +46,10 @@ export const ar = {
     passwordMismatch: 'كلمتين السر مش زي بعض',
     otp: 'اكتب الكود كامل (٦ أرقام)',
     studentCode: 'كود الطالب غير صحيح',
+    fullName: 'اكتب الاسم ثلاثي على الأقل',
+    tooLong: (max: number) => `الحد الأقصى ${n(max)} حرف`,
+    consent: 'لازم موافقة ولي الأمر على تسجيل بيانات الطالب',
+    samePhone: 'رقم ولي الأمر لازم يختلف عن رقم الطالب',
     tenantSlug: 'كود السنتر غير صحيح (حروف إنجليزي وأرقام بدون مسافات)',
     formErrorsTitle: 'راجع البيانات قبل الإرسال',
     formErrors: (count: number) =>
