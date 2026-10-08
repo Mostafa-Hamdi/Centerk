@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { REFRESH_COOKIE, REFRESH_COOKIE_MAX_AGE, REMEMBER_COOKIE } from '@/features/auth/constants';
 import type { ClientSession } from '@/features/auth/types';
 import { ar } from '@/i18n/ar';
+import { env, usesMockApi } from '@/lib/env';
+import { handleMockRequest } from '@/mocks/handlers';
 
 /** Server-side backend base; API_URL_INTERNAL lets the server use a private network address. */
 const backendBase = () =>
-  (process.env.API_URL_INTERNAL ?? process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/$/, '');
+  (process.env.API_URL_INTERNAL ?? env.NEXT_PUBLIC_API_URL).replace(/\/$/, '');
 
 const backendTokensSchema = z.object({
   accessToken: z.string().min(1),
@@ -46,18 +48,17 @@ export async function callBackend(
   body: unknown,
   accessToken?: string | null,
 ): Promise<Response | null> {
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    'Accept-Language': 'ar',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+  };
+  const init = { method: 'POST', headers, body: JSON.stringify(body) };
+  // Demo mode: call the mock in-process (no self-request through Vercel deployment protection).
+  if (usesMockApi) return handleMockRequest('POST', path, new Request(`http://mock${path}`, init));
   try {
-    return await fetch(`${backendBase()}${path}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'Accept-Language': 'ar',
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      },
-      body: JSON.stringify(body),
-      cache: 'no-store',
-    });
+    return await fetch(`${backendBase()}${path}`, { ...init, cache: 'no-store' });
   } catch {
     return null;
   }

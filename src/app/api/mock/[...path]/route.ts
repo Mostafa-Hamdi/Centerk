@@ -1,10 +1,14 @@
+import { usesMockApi } from '@/lib/env';
 import { handleMockRequest } from '@/mocks/handlers';
 
-/** Dev-only mock backend. Disabled (404) unless API_MOCK=true. */
+/**
+ * Mock backend. Enabled when API_MOCK=true or when no real NEXT_PUBLIC_API_URL is configured
+ * (demo deploys); returns 404 as soon as a real backend URL is set.
+ */
 type Context = { params: Promise<{ path: string[] }> };
 
 async function handle(request: Request, { params }: Context) {
-  if (process.env.API_MOCK !== 'true') return new Response(null, { status: 404 });
+  if (process.env.API_MOCK !== 'true' && !usesMockApi) return new Response(null, { status: 404 });
   const { path } = await params;
   return handleMockRequest(request.method, `/${path.join('/')}`, request);
 }
