@@ -10,7 +10,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { memo, type ReactNode } from 'react';
+import { memo, type MouseEvent, type ReactNode } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -51,6 +51,10 @@ export interface DataTableProps<T> {
   skeletonRows?: number;
 }
 
+/** Clicks on controls inside a row (actions, links, checkboxes) must not also open the row. */
+const INTERACTIVE =
+  'a, button, input, select, textarea, label, [role="checkbox"], [role="menuitem"]';
+
 const checkboxClass =
   'size-5 cursor-pointer rounded-[6px] border-2 border-line accent-primary align-middle';
 
@@ -83,6 +87,10 @@ function DataTableInner<T>({
   skeletonRows = 8,
 }: DataTableProps<T>) {
   const selectable = Boolean(rowSelection && onRowSelectionChange);
+  const handleRowClick = (event: MouseEvent, row: T) => {
+    if ((event.target as Element).closest(INTERACTIVE)) return;
+    onRowClick?.(row);
+  };
   const table = useReactTable({
     data: data ?? [],
     columns,
@@ -189,7 +197,9 @@ function DataTableInner<T>({
                     data-state={row.getIsSelected() ? 'selected' : undefined}
                     onPointerEnter={() => onRowIntent?.(row.original)}
                     onFocus={() => onRowIntent?.(row.original)}
-                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                    onClick={
+                      onRowClick ? (event) => handleRowClick(event, row.original) : undefined
+                    }
                     className={cn(
                       'group/row bg-surface transition-[background-color,transform] duration-200 ease-brand hover:-translate-x-0.5 hover:bg-primary-tint data-[state=selected]:bg-primary-tint',
                       onRowClick && 'cursor-pointer',
@@ -238,7 +248,7 @@ function DataTableInner<T>({
           : rows.map((row) => (
               <li
                 key={row.id}
-                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                onClick={onRowClick ? (event) => handleRowClick(event, row.original) : undefined}
                 onPointerEnter={() => onRowIntent?.(row.original)}
                 className={cn(
                   'rounded-lg border border-line bg-surface p-4 shadow-card',

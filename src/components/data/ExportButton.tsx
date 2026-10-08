@@ -15,14 +15,17 @@ interface ExportButtonProps {
   path: string;
   params: Record<string, string | number>;
   fileName: string;
+  /** "csv" for endpoints that already return CSV (e.g. /reports/students.csv). */
+  extension?: 'xlsx' | 'csv';
   label?: string;
 }
 
-/** Downloads `GET {resource}/export?format=xlsx&…filters` as a file (needs `*.export`). */
+/** Downloads `GET {resource}/export?format=xlsx&…filters` (or a CSV endpoint) as a file (needs `*.export`). */
 export function ExportButton({
   path,
   params,
   fileName,
+  extension = 'xlsx',
   label = ar.common.export,
 }: ExportButtonProps) {
   const token = useAppSelector(selectAccessToken);
@@ -32,7 +35,7 @@ export function ExportButton({
   const download = async () => {
     setBusy(true);
     const query = new URLSearchParams({
-      format: 'xlsx',
+      ...(extension === 'xlsx' ? { format: 'xlsx' } : {}),
       ...Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])),
     });
     try {
@@ -51,7 +54,7 @@ export function ExportButton({
       const url = URL.createObjectURL(await response.blob());
       const link = Object.assign(document.createElement('a'), {
         href: url,
-        download: `${fileName}.xlsx`,
+        download: `${fileName}.${extension}`,
       });
       link.click();
       URL.revokeObjectURL(url);
