@@ -7,6 +7,11 @@ export interface AuthState {
   accessTokenExpiresAt: string | null;
   me: MeDto | null;
   currentBranchId: string | null;
+  /** profile/tenant returned with the tokens (login + refresh) — fallback source for /me. */
+  loginHint: {
+    profile: Record<string, unknown> | null;
+    tenant: Record<string, unknown> | null;
+  } | null;
 }
 
 const initialState: AuthState = {
@@ -14,6 +19,7 @@ const initialState: AuthState = {
   accessTokenExpiresAt: null,
   me: null,
   currentBranchId: null,
+  loginHint: null,
 };
 
 export const authSlice = createSlice({
@@ -23,6 +29,12 @@ export const authSlice = createSlice({
     sessionReceived(state, action: PayloadAction<ClientSession>) {
       state.accessToken = action.payload.accessToken;
       state.accessTokenExpiresAt = action.payload.accessTokenExpiresAt;
+      if (action.payload.profile || action.payload.tenant) {
+        state.loginHint = {
+          profile: action.payload.profile ?? null,
+          tenant: action.payload.tenant ?? null,
+        };
+      }
     },
     meLoaded(state, action: PayloadAction<MeDto>) {
       state.me = action.payload;

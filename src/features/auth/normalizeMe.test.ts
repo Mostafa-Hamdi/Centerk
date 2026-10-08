@@ -64,3 +64,36 @@ describe('normalizeMe', () => {
     });
   });
 });
+
+describe('normalizeMe with the live AuthTokens profile/tenant', () => {
+  // Shape from the backend team (2026-10-08): POST /api/v1/auth/login → profile + tenant.
+  const hint = {
+    profile: {
+      id: 'u-100',
+      name: 'Demo Owner',
+      phone: '+201000000001',
+      role: 'Owner',
+      branchId: 'b-010',
+    },
+    tenant: { id: 't-001', name: 'سنتر العرض التجريبي', slug: 'teachercenter-demo', plan: 'Trial' },
+  };
+  const token = jwt({
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': 'u-100',
+    tenant_id: 't-001',
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': 'Owner',
+  });
+
+  it('builds the account from the login profile when /me is unavailable', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const me = normalizeMe(null, token, hint);
+    expect(me).toMatchObject({
+      id: 'u-100',
+      fullName: 'Demo Owner',
+      phone: '+201000000001',
+      isOwner: true,
+      kind: 'Staff',
+    });
+    expect(me.branches.map((branch) => branch.id)).toEqual(['b-010']);
+    expect(me.tenant).toMatchObject({ id: 't-001', name: 'سنتر العرض التجريبي', plan: 'Trial' });
+  });
+});

@@ -40,10 +40,15 @@ export const authApi = api.injectEndpoints({
     getMe: build.query<MeDto, undefined>({
       // Live /me is untyped and differs from the spec — normalized (token claims as fallback).
       async queryFn(_arg, queryApi, _extraOptions, baseQuery) {
+        const { accessToken, loginHint } = (queryApi.getState() as { auth: AuthState }).auth;
         const result = await baseQuery('/me');
-        if (result.error) return { error: result.error };
-        const { accessToken } = (queryApi.getState() as { auth: AuthState }).auth;
-        return { data: normalizeMe(result.data, accessToken) };
+        // /me unavailable but the tokens came with profile/tenant → still build the account.
+        if (result.error) {
+          return loginHint && result.error.status !== 401
+            ? { data: normalizeMe(null, accessToken, loginHint) }
+            : { error: result.error };
+        }
+        return { data: normalizeMe(result.data, accessToken, loginHint) };
       },
       providesTags: ['Me'],
       keepUnusedDataFor: 60 * 60,

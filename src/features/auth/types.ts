@@ -1,6 +1,6 @@
 /** Auth DTOs — aligned with the live Swagger (TeacherCenters API v1, /api/v1/auth/*). */
 
-export type Plan = 'Free' | 'Solo' | 'Pro' | 'Center' | 'Enterprise';
+export type Plan = 'Trial' | 'Free' | 'Solo' | 'Pro' | 'Center' | 'Enterprise';
 export type DataScope = 'AllBranches' | 'OwnBranch' | 'OwnGroups' | 'Self';
 export type AccountKind = 'Staff' | 'Guardian' | 'Student';
 /** Swagger `OtpRequest.purpose`. */
@@ -40,6 +40,9 @@ export interface BackendTokens {
 export interface ClientSession {
   accessToken: string;
   accessTokenExpiresAt: string;
+  /** `AuthTokens.profile` / `.tenant` from the live API (no secrets) — used to build MeDto. */
+  profile?: Record<string, unknown> | null;
+  tenant?: Record<string, unknown> | null;
 }
 
 /** Swagger `LoginV1` + rememberMe (BFF only). */

@@ -52,6 +52,7 @@ export function decodeJwtClaims(token: string | null): Raw {
 
 const ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 const NAME_CLAIM = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+const ID_CLAIM = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
 
 export const ROLE_LABELS: Record<string, string> = {
   owner: 'المالك',
@@ -64,7 +65,7 @@ export const ROLE_LABELS: Record<string, string> = {
   student: 'طالب',
 };
 
-const PLANS: readonly Plan[] = ['Free', 'Solo', 'Pro', 'Center', 'Enterprise'];
+const PLANS: readonly Plan[] = ['Trial', 'Free', 'Solo', 'Pro', 'Center', 'Enterprise'];
 const SCOPES: readonly DataScope[] = ['AllBranches', 'OwnBranch', 'OwnGroups', 'Self'];
 
 function toRole(value: unknown, index: number): { id: string; name: string } | null {
@@ -87,9 +88,21 @@ function toBranch(value: unknown, index: number): BranchDto | null {
 
 const warned = { me: false };
 
-export function normalizeMe(raw: unknown, accessToken: string | null): MeDto {
+export function normalizeMe(
+  raw: unknown,
+  accessToken: string | null,
+  hint?: { profile: Record<string, unknown> | null; tenant: Record<string, unknown> | null } | null,
+): MeDto {
   const claims = decodeJwtClaims(accessToken);
-  const sources = [raw, read(raw, ['profile']), read(raw, ['user']), read(raw, ['data'])];
+  // /me first, then the profile/tenant that came with the tokens (live AuthTokens shape).
+  const sources = [
+    raw,
+    read(raw, ['profile']),
+    read(raw, ['user']),
+    read(raw, ['data']),
+    hint?.profile,
+    hint?.tenant ? { tenant: hint.tenant } : undefined,
+  ];
   const pick = (...paths: string[]) => {
     for (const source of sources) {
       const value = str(source, ...paths);
@@ -122,7 +135,7 @@ export function normalizeMe(raw: unknown, accessToken: string | null): MeDto {
         ? 'Student'
         : 'Staff';
 
-  const branchSource = pickList('branches', 'branchIds');
+  const branchSource = pickList('branches', 'branchIds', 'branchId');
   const branches = (branchSource.length ? branchSource : list(claims, 'branch_ids', 'branchIds'))
     .map(toBranch)
     .filter((branch): branch is BranchDto => branch !== null);
@@ -143,7 +156,7 @@ export function normalizeMe(raw: unknown, accessToken: string | null): MeDto {
   const hidePhones = read(raw, ['hidePhones', 'profile.hidePhones']);
 
   const me: MeDto = {
-    id: pick('id', 'userId', 'sub') ?? str(claims, 'sub') ?? '',
+    id: pick('id', 'userId', 'sub') ?? str(claims, 'sub', ID_CLAIM) ?? '',
     fullName:
       pick('fullName', 'name', 'displayName', 'userName') ??
       str(claims, 'name', NAME_CLAIM, 'unique_name') ??

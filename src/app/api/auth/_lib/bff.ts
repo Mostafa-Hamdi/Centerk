@@ -8,12 +8,11 @@ import {
 } from '@/features/auth/constants';
 import type { ClientSession } from '@/features/auth/types';
 import { ar } from '@/i18n/ar';
-import { env, usesMockApi } from '@/lib/env';
+import { env, usesMockApi, withApiVersion } from '@/lib/env';
 import { handleMockRequest } from '@/mocks/handlers';
 
 /** Server-side backend base; API_URL_INTERNAL lets the server use a private network address. */
-const backendBase = () =>
-  (process.env.API_URL_INTERNAL ?? env.NEXT_PUBLIC_API_URL).replace(/\/$/, '');
+const backendBase = () => withApiVersion(process.env.API_URL_INTERNAL ?? env.NEXT_PUBLIC_API_URL);
 
 /** Swagger `AuthTokens`. */
 const backendTokensSchema = z.object({
@@ -21,6 +20,8 @@ const backendTokensSchema = z.object({
   refreshToken: z.string().min(1),
   expiresInSeconds: z.number().int().positive(),
   refreshExpiresAtUtc: z.string().optional(),
+  profile: z.record(z.string(), z.unknown()).nullish(),
+  tenant: z.record(z.string(), z.unknown()).nullish(),
 });
 
 export function problem(status: number, code: string, title: string) {
@@ -109,10 +110,11 @@ export async function sessionFromBackend(
   const parsed = backendTokensSchema.safeParse(await response.json().catch(() => null));
   if (!parsed.success) return problem(502, 'bad-token-response', ar.errors.badGateway);
 
-  const { accessToken, refreshToken, expiresInSeconds, refreshExpiresAtUtc } = parsed.data;
+  const { accessToken, refreshToken, expiresInSeconds, refreshExpiresAtUtc, profile, tenant } =
+    parsed.data;
   const accessTokenExpiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
   const result = NextResponse.json<ClientSession>(
-    { accessToken, accessTokenExpiresAt },
+    { accessToken, accessTokenExpiresAt, profile: profile ?? null, tenant: tenant ?? null },
     { headers: { 'Cache-Control': 'no-store' } },
   );
   const refreshMaxAge = refreshExpiresAtUtc
