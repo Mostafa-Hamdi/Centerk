@@ -42,12 +42,10 @@ export const studentFormSchema = z
       phone: phoneSchema,
       relation: z.enum(GUARDIAN_RELATIONS, { error: v.required }),
     }),
-    guardianConsent: z.boolean(),
+    // Validated with the other fields (not in superRefine) so the error shows on the first submit.
+    guardianConsent: z.boolean().refine(Boolean, { message: v.consent }),
   })
   .superRefine((value, ctx) => {
-    if (!value.guardianConsent) {
-      ctx.addIssue({ code: 'custom', path: ['guardianConsent'], message: v.consent });
-    }
     if (value.phone && value.phone === value.guardian.phone) {
       ctx.addIssue({ code: 'custom', path: ['guardian', 'phone'], message: v.samePhone });
     }

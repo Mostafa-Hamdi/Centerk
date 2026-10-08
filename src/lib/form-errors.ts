@@ -23,5 +23,13 @@ export function applyServerErrors<T extends FieldValues>(
 
 /** `handleSubmit` invalid callback: RHF already focuses the first invalid field; we summarize. */
 export function toastInvalidForm(errors: FieldErrors): void {
-  toast.error(ar.validation.formErrorsTitle, ar.validation.formErrors(Object.keys(errors).length));
+  toast.error(ar.validation.formErrorsTitle, ar.validation.formErrors(countFieldErrors(errors)));
+}
+
+/** Counts leaf field errors, so nested objects (guardian.phone…) count per field. */
+function countFieldErrors(errors: object): number {
+  return Object.values(errors).reduce<number>((count, value: unknown) => {
+    if (!value || typeof value !== 'object') return count;
+    return count + ('message' in value && 'type' in value ? 1 : countFieldErrors(value));
+  }, 0);
 }
