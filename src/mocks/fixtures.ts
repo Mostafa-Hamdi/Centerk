@@ -3,12 +3,13 @@ import { PERMISSION_CODES } from '@/features/auth/permissions';
 
 /**
  * DEV-ONLY demo data for the mock API (API_MOCK=true). Not real accounts.
- * Demo logins:
+ * Demo logins (center code / tenantSlug: demo):
  *  - Staff (دخول الفريق): phone 01000000000 · password Centerk2026
  *  - Guardian (ولي أمر): phone 01111111111 · OTP 123456
- *  - Student (طالب): code F-1024 · OTP 123456
+ *  - Student (طالب): code F-1024 + any valid phone · OTP 123456
  */
 export const mockAccounts = {
+  tenantSlug: 'demo',
   staff: { phone: '01000000000', password: 'Centerk2026' },
   guardian: { phone: '01111111111' },
   student: { studentCode: 'F-1024' },

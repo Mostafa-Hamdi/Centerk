@@ -19,6 +19,8 @@ const t = ar.auth.portal;
 
 interface OtpStepProps {
   request: OtpRequest;
+  /** From POST /auth/otp/request; replaced on resend. */
+  challengeId: string | undefined;
   rememberMe: boolean;
   maskedDestination: string | null;
   resendAfterSeconds: number;
@@ -29,6 +31,7 @@ interface OtpStepProps {
 /** Step 2 of the portal login: 6-digit code, auto-submit, resend countdown. */
 export function OtpStep({
   request,
+  challengeId: initialChallengeId,
   rememberMe,
   maskedDestination,
   resendAfterSeconds,
@@ -36,6 +39,7 @@ export function OtpStep({
   onFailure,
 }: OtpStepProps) {
   const [code, setCode] = useState('');
+  const [challengeId, setChallengeId] = useState(initialChallengeId);
   const [error, setError] = useState<string>();
   const [verifyOtp, verifyState] = useVerifyOtpMutation();
   const [requestOtp, resendState] = useRequestOtpMutation();
@@ -54,7 +58,14 @@ export function OtpStep({
     setError(undefined);
     setBusy(true);
     try {
-      const session = await verifyOtp({ ...request, code: parsed.data, rememberMe }).unwrap();
+      const session = await verifyOtp({
+        tenantSlug: request.tenantSlug,
+        phone: request.phone,
+        purpose: request.purpose,
+        challengeId,
+        code: parsed.data,
+        rememberMe,
+      }).unwrap();
       await completeLogin(session);
     } catch (caught) {
       const problem = toProblem(caught);
@@ -69,6 +80,7 @@ export function OtpStep({
   const resend = async () => {
     try {
       const result = await requestOtp(request).unwrap();
+      if (result?.challengeId) setChallengeId(result.challengeId);
       countdown.restart(result?.resendAfterSeconds ?? OTP_RESEND_SECONDS);
       setCode('');
       setError(undefined);

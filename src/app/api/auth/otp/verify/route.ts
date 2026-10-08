@@ -11,17 +11,17 @@ import {
   unreachable,
 } from '../../_lib/bff';
 
-const bodySchema = z
-  .object({
-    phone: z.string().optional(),
-    studentCode: z.string().optional(),
-    code: z.string().regex(/^\d{6}$/),
-    purpose: z.literal('Login'),
-    rememberMe: z.boolean(),
-  })
-  .refine((body) => Boolean(body.phone) !== Boolean(body.studentCode));
+/** Swagger `OtpVerify` + rememberMe. */
+const bodySchema = z.object({
+  tenantSlug: z.string().min(1),
+  challengeId: z.uuid().optional(),
+  phone: z.string().min(1),
+  purpose: z.enum(['guardian-login', 'student-login']),
+  code: z.string().regex(/^\d{6}$/),
+  rememberMe: z.boolean(),
+});
 
-/** BFF for POST /auth/otp/verify (guardian by phone / student by code). */
+/** BFF for POST /api/v1/auth/otp/verify (guardian / student login). */
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) return problem(403, 'forbidden', ar.errors.forbidden);
   const parsed = bodySchema.safeParse(await readJson(request));
@@ -31,5 +31,5 @@ export async function POST(request: NextRequest) {
   const response = await callBackend('/auth/otp/verify', payload);
   if (!response) return unreachable();
   if (!response.ok) return relay(response);
-  return sessionFromBackend(response, rememberMe);
+  return sessionFromBackend(response, rememberMe, payload.tenantSlug);
 }

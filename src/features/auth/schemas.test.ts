@@ -8,6 +8,7 @@ import {
   phoneSchema,
   portalIdentifySchema,
   resetPasswordSchema,
+  tenantSlugSchema,
 } from './schemas';
 
 describe('phoneSchema', () => {
@@ -45,6 +46,7 @@ describe('newPasswordSchema', () => {
 describe('loginSchema', () => {
   it('only checks the password is present (strength applies on reset)', () => {
     const result = loginSchema.safeParse({
+      tenantSlug: 'demo',
       phone: '01012345678',
       password: 'x',
       rememberMe: false,
@@ -54,34 +56,47 @@ describe('loginSchema', () => {
 });
 
 describe('portalIdentifySchema', () => {
-  it('validates only the phone for guardians', () => {
-    const result = portalIdentifySchema.parse({
-      as: 'guardian',
+  const base = { tenantSlug: 'Demo', phone: '01112345678', studentCode: '', rememberMe: true };
+
+  it('builds a guardian-login OtpRequest (no student code)', () => {
+    const result = portalIdentifySchema.parse({ ...base, as: 'guardian' });
+    expect(result.request).toEqual({
+      tenantSlug: 'demo',
       phone: '01112345678',
-      studentCode: '',
-      rememberMe: true,
+      purpose: 'guardian-login',
     });
-    expect(result.identity).toEqual({ phone: '01112345678' });
   });
 
-  it('validates and upper-cases the code for students', () => {
-    const result = portalIdentifySchema.parse({
-      as: 'student',
-      phone: '',
-      studentCode: 'f-1024',
-      rememberMe: false,
-    });
-    expect(result.identity).toEqual({ studentCode: 'F-1024' });
+  it('requires and upper-cases the code for students', () => {
+    const result = portalIdentifySchema.parse({ ...base, as: 'student', studentCode: 'f-1024' });
+    expect(result.request).toMatchObject({ purpose: 'student-login', studentCode: 'F-1024' });
   });
 
-  it('puts the error on the active field', () => {
+  it('flags the student code only for students', () => {
+    const student = portalIdentifySchema.safeParse({ ...base, as: 'student' });
+    expect(student.error?.issues.map((issue) => issue.path.join('.'))).toEqual(['studentCode']);
+    expect(portalIdentifySchema.safeParse({ ...base, as: 'guardian' }).success).toBe(true);
+  });
+
+  it('requires the phone for both roles (live API)', () => {
     const result = portalIdentifySchema.safeParse({
+      ...base,
       as: 'student',
       phone: '',
-      studentCode: '',
-      rememberMe: false,
+      studentCode: 'F-1',
     });
-    expect(result.error?.issues.map((issue) => issue.path.join('.'))).toEqual(['studentCode']);
+    expect(result.error?.issues.map((issue) => issue.path.join('.'))).toContain('phone');
+  });
+});
+
+describe('tenantSlugSchema', () => {
+  it('lower-cases and trims the center code', () => {
+    expect(tenantSlugSchema.parse('  AlNour ')).toBe('alnour');
+  });
+
+  it('rejects spaces and Arabic letters', () => {
+    expect(tenantSlugSchema.safeParse('al nour').success).toBe(false);
+    expect(tenantSlugSchema.safeParse('النور').success).toBe(false);
   });
 });
 

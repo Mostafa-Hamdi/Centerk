@@ -1,16 +1,17 @@
-/** DTOs for backend-spec §6 / §10.1. Exact response shapes are not fixed by the spec — see docs/api-gaps.md #4. */
+/** Auth DTOs — aligned with the live Swagger (TeacherCenters API v1, /api/v1/auth/*). */
 
 export type Plan = 'Free' | 'Solo' | 'Pro' | 'Center' | 'Enterprise';
 export type DataScope = 'AllBranches' | 'OwnBranch' | 'OwnGroups' | 'Self';
 export type AccountKind = 'Staff' | 'Guardian' | 'Student';
-export type OtpPurpose = 'Login';
+/** Swagger `OtpRequest.purpose`. */
+export type OtpPurpose = 'guardian-login' | 'student-login';
 
 export interface BranchDto {
   id: string;
   name: string;
 }
 
-/** GET /me — profile, tenant, plan, branches, permissions, scope. */
+/** GET /me — Swagger has no response schema yet (docs/api-gaps.md #6). */
 export interface MeDto {
   id: string;
   fullName: string;
@@ -27,12 +28,12 @@ export interface MeDto {
   hidePhones: boolean;
 }
 
-/** Token pair returned by POST /auth/login, /auth/otp/verify, /auth/refresh. */
+/** Swagger `AuthTokens` (login / otp verify / refresh). */
 export interface BackendTokens {
   accessToken: string;
-  accessTokenExpiresAt: string;
   refreshToken: string;
-  refreshTokenExpiresAt?: string;
+  expiresInSeconds: number;
+  refreshExpiresAtUtc: string;
 }
 
 /** What the BFF hands to the browser — never contains the refresh token. */
@@ -41,25 +42,35 @@ export interface ClientSession {
   accessTokenExpiresAt: string;
 }
 
+/** Swagger `LoginV1` + rememberMe (BFF only). */
 export interface LoginRequest {
+  tenantSlug: string;
   phone: string;
   password: string;
   rememberMe: boolean;
 }
 
-/** POST /auth/otp/request. Guardians send `phone`; students send `studentCode` (backend-spec §6.1). */
+/** Swagger `OtpRequest`: phone is required for both guardians and students. */
 export interface OtpRequest {
-  phone?: string;
-  studentCode?: string;
+  tenantSlug: string;
+  phone: string;
   purpose: OtpPurpose;
+  studentCode?: string;
 }
 
+/** POST /auth/otp/request response — no Swagger schema; `challengeId` feeds OtpVerify. */
 export interface OtpRequestResult {
+  challengeId?: string;
   resendAfterSeconds?: number;
   maskedDestination?: string | null;
 }
 
-export interface OtpVerifyRequest extends OtpRequest {
+/** Swagger `OtpVerify` + rememberMe (BFF only). */
+export interface OtpVerifyRequest {
+  tenantSlug: string;
+  challengeId?: string;
+  phone: string;
+  purpose: OtpPurpose;
   code: string;
   rememberMe: boolean;
 }

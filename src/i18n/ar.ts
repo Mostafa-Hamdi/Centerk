@@ -46,6 +46,7 @@ export const ar = {
     passwordMismatch: 'كلمتين السر مش زي بعض',
     otp: 'اكتب الكود كامل (٦ أرقام)',
     studentCode: 'كود الطالب غير صحيح',
+    tenantSlug: 'كود السنتر غير صحيح (حروف إنجليزي وأرقام بدون مسافات)',
     formErrorsTitle: 'راجع البيانات قبل الإرسال',
     formErrors: (count: number) =>
       count === 1
@@ -111,6 +112,8 @@ export const ar = {
       tabsLabel: 'طريقة الدخول',
       staffTab: 'دخول الفريق',
       portalTab: 'ولي أمر / طالب',
+      tenantSlug: 'كود السنتر',
+      tenantSlugHint: 'الكود اللي السنتر بعتهولك، زي alnour',
       phone: 'رقم الموبايل',
       password: 'كلمة السر',
       rememberMe: 'افتكرني على الجهاز ده',
@@ -126,6 +129,7 @@ export const ar = {
       guardianPhone: 'رقم موبايل ولي الأمر',
       studentCode: 'كود الطالب',
       studentCodeHint: 'مكتوب على كارنيه الطالب',
+      phoneForStudent: 'رقم الموبايل (الطالب أو ولي الأمر)',
       sendCode: 'ابعت الكود',
       otpTitle: 'اكتب كود التأكيد',
       otpSentTo: (destination: string) => `بعتنا كود من ٦ أرقام على ${destination}`,

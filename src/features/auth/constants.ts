@@ -1,6 +1,8 @@
 /** Shared by middleware (edge), BFF route handlers and the client. No server-only imports here. */
 export const REFRESH_COOKIE = 'ck_rt';
 export const REMEMBER_COOKIE = 'ck_rm';
+/** Tenant slug used for the last login — /auth/refresh requires it (live API). */
+export const TENANT_COOKIE = 'ck_tn';
 /** Refresh token lifetime per backend-spec §6.1 (30 days, rotating). */
 export const REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 

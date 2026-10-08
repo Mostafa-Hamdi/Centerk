@@ -19,12 +19,16 @@ const problem = (status: number, code: string, title: string) =>
     { status, headers: { 'Content-Type': 'application/problem+json' } },
   );
 
+/** Swagger `AuthTokens`. */
 const tokens = (kind: Kind) => ({
   accessToken: `mock-at.${kind}.${crypto.randomUUID()}`,
-  accessTokenExpiresAt: new Date(Date.now() + ACCESS_TTL_MS).toISOString(),
   refreshToken: `mock-rt.${kind}.${crypto.randomUUID()}`,
-  refreshTokenExpiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+  expiresInSeconds: ACCESS_TTL_MS / 1000,
+  refreshExpiresAtUtc: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
 });
+
+const wrongTenant = (body: Body) => body.tenantSlug !== mockAccounts.tenantSlug;
+const tenantProblem = () => problem(404, 'tenant-not-found', 'كود السنتر غير موجود');
 
 const kindFromToken = (token: string | undefined, prefix: string): Kind | null => {
   const kind = token?.startsWith(prefix) ? token.split('.')[1] : undefined;
@@ -76,27 +80,31 @@ type Handler = (body: Body, request: Request) => Response;
 
 const routes: Record<string, Handler> = {
   'POST /auth/login': (body) =>
-    body.phone === mockAccounts.staff.phone && body.password === mockAccounts.staff.password
-      ? json(tokens('Staff'))
-      : problem(401, 'invalid-credentials', 'رقم الموبايل أو كلمة السر غلط'),
+    wrongTenant(body)
+      ? tenantProblem()
+      : body.phone === mockAccounts.staff.phone && body.password === mockAccounts.staff.password
+        ? json(tokens('Staff'))
+        : problem(401, 'invalid-credentials', 'رقم الموبايل أو كلمة السر غلط'),
 
   'POST /auth/otp/request': (body) => {
-    if (body.phone && body.phone !== mockAccounts.guardian.phone) {
+    if (wrongTenant(body)) return tenantProblem();
+    if (body.purpose === 'guardian-login' && body.phone !== mockAccounts.guardian.phone) {
       return problem(404, 'not-found', 'الرقم ده مش مسجّل كولي أمر');
     }
-    if (body.studentCode && body.studentCode !== mockAccounts.student.studentCode) {
+    if (body.purpose === 'student-login' && body.studentCode !== mockAccounts.student.studentCode) {
       return problem(404, 'not-found', 'كود الطالب مش موجود');
     }
     return json({
+      challengeId: crypto.randomUUID(),
       resendAfterSeconds: 60,
-      maskedDestination: body.phone ? '0111****111' : 'واتساب ولي الأمر 0109****211',
+      maskedDestination: `${String(body.phone).slice(0, 4)}****${String(body.phone).slice(-3)}`,
     });
   },
 
   'POST /auth/otp/verify': (body) => {
     if (body.code !== mockAccounts.otp)
       return problem(400, 'invalid-otp', 'الكود غلط أو انتهت صلاحيته');
-    return json(tokens(body.studentCode ? 'Student' : 'Guardian'));
+    return json(tokens(body.purpose === 'student-login' ? 'Student' : 'Guardian'));
   },
 
   'POST /auth/refresh': (body) => {

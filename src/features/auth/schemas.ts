@@ -38,41 +38,55 @@ export const otpCodeSchema = z
   .transform(normalizeDigits)
   .pipe(z.string().regex(new RegExp(`^\\d{${OTP_LENGTH}}$`), v.otp));
 
+/** Center code (`tenantSlug`) — required by every /auth endpoint of the live API. */
+export const tenantSlugSchema = z
+  .string()
+  .trim()
+  .min(1, v.required)
+  .transform((value) => value.toLowerCase())
+  .pipe(z.string().regex(/^[a-z0-9][a-z0-9_-]{1,63}$/, v.tenantSlug));
+
 /** Staff login. Existing passwords are only checked for presence — strength rules apply on reset. */
 export const loginSchema = z.object({
+  tenantSlug: tenantSlugSchema,
   phone: phoneSchema,
   password: z.string().min(1, v.required).max(128),
   rememberMe: z.boolean(),
 });
 
-/** Portal step 1: guardian by phone, student by code — the other field is ignored. */
+/**
+ * Portal step 1 (Swagger `OtpRequest`): phone is required for both; students also give their code.
+ * Conditional field validated with superRefine.
+ */
 export const portalIdentifySchema = z
   .object({
     as: z.enum(['guardian', 'student']),
-    phone: z.string(),
+    tenantSlug: tenantSlugSchema,
+    phone: phoneSchema,
     studentCode: z.string(),
     rememberMe: z.boolean(),
   })
   .superRefine((value, ctx) => {
-    const [field, schema] =
-      value.as === 'guardian'
-        ? (['phone', phoneSchema] as const)
-        : (['studentCode', studentCodeSchema] as const);
-    const result = schema.safeParse(value[field]);
+    if (value.as !== 'student') return;
+    const result = studentCodeSchema.safeParse(value.studentCode);
     if (!result.success) {
       ctx.addIssue({
         code: 'custom',
-        path: [field],
+        path: ['studentCode'],
         message: result.error.issues[0]?.message ?? v.required,
       });
     }
   })
   .transform((value) => ({
     rememberMe: value.rememberMe,
-    identity:
-      value.as === 'guardian'
-        ? { phone: phoneSchema.parse(value.phone) }
-        : { studentCode: studentCodeSchema.parse(value.studentCode) },
+    request: {
+      tenantSlug: value.tenantSlug,
+      phone: value.phone,
+      purpose: value.as === 'guardian' ? ('guardian-login' as const) : ('student-login' as const),
+      ...(value.as === 'student'
+        ? { studentCode: studentCodeSchema.parse(value.studentCode) }
+        : {}),
+    },
   }));
 
 export const forgotPasswordSchema = z.object({ phone: phoneSchema });

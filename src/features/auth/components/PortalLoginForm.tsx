@@ -20,12 +20,14 @@ import { OTP_RESEND_SECONDS } from '../constants';
 import { portalIdentifySchema } from '../schemas';
 import type { OtpRequest } from '../types';
 import { OtpStep } from './OtpStep';
+import { rememberTenantSlug, TenantSlugField } from './TenantSlugField';
 
 type IdentifyInput = z.input<typeof portalIdentifySchema>;
 type IdentifyOutput = z.output<typeof portalIdentifySchema>;
 
 interface OtpContext {
   request: OtpRequest;
+  challengeId: string | undefined;
   rememberMe: boolean;
   maskedDestination: string | null;
   resendAfterSeconds: number;
@@ -38,7 +40,7 @@ const roles = [
 ] as const;
 
 /**
- * "ولي أمر / طالب" (backend-spec §6.1): guardian = phone + OTP, student = student code + OTP.
+ * "ولي أمر / طالب" (Swagger OtpRequest): center code + phone for both; students add their code.
  * Step 1 requests the code (POST /auth/otp/request), step 2 verifies it through the BFF.
  */
 export function PortalLoginForm({ onFailure }: { onFailure: () => void }) {
@@ -47,24 +49,25 @@ export function PortalLoginForm({ onFailure }: { onFailure: () => void }) {
   const form = useForm<IdentifyInput, unknown, IdentifyOutput>({
     resolver: zodResolver(portalIdentifySchema),
     mode: 'onBlur',
-    defaultValues: { as: 'guardian', phone: '', studentCode: '', rememberMe: true },
+    defaultValues: { as: 'guardian', tenantSlug: '', phone: '', studentCode: '', rememberMe: true },
   });
   const { errors, isSubmitting } = form.formState;
   const as = form.watch('as');
 
-  const onValid = async ({ identity, rememberMe }: IdentifyOutput) => {
-    const request: OtpRequest = { ...identity, purpose: 'Login' };
+  const onValid = async ({ request, rememberMe }: IdentifyOutput) => {
     try {
       const result = await requestOtp(request).unwrap();
+      rememberTenantSlug(request.tenantSlug);
       setOtp({
         request,
+        challengeId: result?.challengeId,
         rememberMe,
         maskedDestination: result?.maskedDestination ?? null,
         resendAfterSeconds: result?.resendAfterSeconds ?? OTP_RESEND_SECONDS,
       });
     } catch (error) {
       const problem = toProblem(error);
-      applyServerErrors(problem, form.setError, ['phone', 'studentCode']);
+      applyServerErrors(problem, form.setError, ['tenantSlug', 'phone', 'studentCode']);
       onFailure();
       toast.error(problem.title, problem.detail);
     }
@@ -125,22 +128,13 @@ export function PortalLoginForm({ onFailure }: { onFailure: () => void }) {
             </div>
           </fieldset>
 
-          {as === 'guardian' ? (
-            <FormField key="phone" label={t.guardianPhone} error={errors.phone?.message} required>
-              {(control) => (
-                <Input
-                  {...control}
-                  {...form.register('phone')}
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  dir="ltr"
-                  placeholder="01XXXXXXXXX"
-                  startAdornment={<Smartphone aria-hidden />}
-                />
-              )}
-            </FormField>
-          ) : (
+          <TenantSlugField
+            registration={form.register('tenantSlug')}
+            error={errors.tenantSlug?.message}
+            onRestore={(slug) => form.setValue('tenantSlug', slug)}
+          />
+
+          {as === 'student' ? (
             <FormField
               key="code"
               label={t.studentCode}
@@ -160,7 +154,26 @@ export function PortalLoginForm({ onFailure }: { onFailure: () => void }) {
                 />
               )}
             </FormField>
-          )}
+          ) : null}
+
+          <FormField
+            label={as === 'student' ? t.phoneForStudent : t.guardianPhone}
+            error={errors.phone?.message}
+            required
+          >
+            {(control) => (
+              <Input
+                {...control}
+                {...form.register('phone')}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                dir="ltr"
+                placeholder="01XXXXXXXXX"
+                startAdornment={<Smartphone aria-hidden />}
+              />
+            )}
+          </FormField>
 
           <Controller
             control={form.control}

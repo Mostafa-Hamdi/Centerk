@@ -11,7 +11,7 @@ import {
   unreachable,
 } from '../_lib/bff';
 
-/** BFF for POST /auth/login (staff: phone + password). */
+/** BFF for POST /api/v1/auth/login (Swagger `LoginV1`: tenantSlug + phone + password). */
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) return problem(403, 'forbidden', ar.errors.forbidden);
   const parsed = loginSchema.safeParse(await readJson(request));
@@ -21,5 +21,5 @@ export async function POST(request: NextRequest) {
   const response = await callBackend('/auth/login', credentials);
   if (!response) return unreachable();
   if (!response.ok) return relay(response);
-  return sessionFromBackend(response, rememberMe);
+  return sessionFromBackend(response, rememberMe, credentials.tenantSlug);
 }

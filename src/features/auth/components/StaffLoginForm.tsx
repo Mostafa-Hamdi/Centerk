@@ -18,6 +18,7 @@ import { toProblem } from '@/lib/problem-details';
 import { useLoginMutation } from '../api';
 import { useCompleteLogin } from '../hooks/useCompleteLogin';
 import { loginSchema } from '../schemas';
+import { rememberTenantSlug, TenantSlugField } from './TenantSlugField';
 
 type LoginInput = z.input<typeof loginSchema>;
 type LoginOutput = z.output<typeof loginSchema>;
@@ -31,16 +32,18 @@ export function StaffLoginForm({ onFailure }: { onFailure: () => void }) {
   const form = useForm<LoginInput, unknown, LoginOutput>({
     resolver: zodResolver(loginSchema),
     mode: 'onBlur',
-    defaultValues: { phone: '', password: '', rememberMe: true },
+    defaultValues: { tenantSlug: '', phone: '', password: '', rememberMe: true },
   });
   const { errors, isSubmitting, isSubmitSuccessful } = form.formState;
 
   const onValid = async (values: LoginOutput) => {
     try {
-      await completeLogin(await login(values).unwrap());
+      const session = await login(values).unwrap();
+      rememberTenantSlug(values.tenantSlug);
+      await completeLogin(session);
     } catch (error) {
       const problem = toProblem(error);
-      applyServerErrors(problem, form.setError, ['phone', 'password']);
+      applyServerErrors(problem, form.setError, ['tenantSlug', 'phone', 'password']);
       onFailure();
       if (problem.status === 401) {
         toast.error(ar.errors.invalidCredentials);
@@ -65,6 +68,12 @@ export function StaffLoginForm({ onFailure }: { onFailure: () => void }) {
       }}
       className="flex flex-col gap-5"
     >
+      <TenantSlugField
+        registration={form.register('tenantSlug')}
+        error={errors.tenantSlug?.message}
+        onRestore={(slug) => form.setValue('tenantSlug', slug)}
+      />
+
       <FormField label={t.phone} error={errors.phone?.message} required>
         {(control) => (
           <Input
