@@ -75,6 +75,41 @@ const notifications = [
   },
 ];
 
+const todaySessions = [
+  ['كيمياء · تالتة ثانوي (أ)', 'كيمياء', 'أ. هبة رشدي', 'قاعة ١', '09:00', '10:30', 'Done', 48, 45],
+  ['فيزياء · تانية ثانوي', 'فيزياء', 'أ. محمد فوزي', 'قاعة ٢', '11:00', '12:30', 'Done', 40, 33],
+  ['أحياء · تالتة ثانوي', 'أحياء', 'أ. سارة نبيل', 'قاعة ٣', '13:00', '14:30', 'Live', 50, 42],
+  ['كيمياء · تالتة ثانوي (ب)', 'كيمياء', 'أ. هبة رشدي', 'قاعة ١', '15:00', '16:30', 'Live', 45, 29],
+  [
+    'رياضيات · أولى ثانوي',
+    'رياضيات',
+    'أ. كريم عادل',
+    'قاعة ٢',
+    '17:00',
+    '18:30',
+    'Upcoming',
+    38,
+    0,
+  ],
+  ['لغة عربية · تالتة ثانوي', 'عربي', 'أ. منى سمير', 'قاعة ٣', '19:00', '20:30', 'Upcoming', 52, 0],
+].map(
+  (
+    [groupName, subject, teacherName, hallName, startTime, endTime, status, expected, present],
+    index,
+  ) => ({
+    id: `sess-${index + 1}`,
+    groupName,
+    subject,
+    teacherName,
+    hallName,
+    startTime,
+    endTime,
+    status,
+    expected,
+    present,
+  }),
+);
+
 type Body = Record<string, unknown>;
 type Handler = (body: Body, request: Request) => Response;
 
@@ -133,6 +168,31 @@ const routes: Record<string, Handler> = {
     });
     return new Response(null, { status: 204 });
   },
+
+  'GET /dashboard/summary': () =>
+    json({
+      incomeToday: 12450,
+      incomeYesterday: 11100,
+      sessionsToday: { total: 9, live: 2, upcoming: 4, done: 3, cancelled: 0 },
+      monthlyAttendanceRate: 0.874,
+      openDues: { total: 31800, count: 42 },
+      activeStudents: 486,
+    }),
+  'GET /dashboard/today-sessions': () => json(todaySessions),
+  'GET /dashboard/alerts': () =>
+    json([
+      { type: 'consecutive-absences', count: 7 },
+      { type: 'weak-last-quiz', count: 12 },
+      { type: 'overdue-30', count: 5 },
+      { type: 'waitlist', count: 3 },
+    ]),
+  'GET /dashboard/income-7d': () =>
+    json(
+      [8200, 9650, 7400, 11800, 10250, 11100, 12450].map((amount, index) => ({
+        date: new Date(Date.now() - (6 - index) * 86_400_000).toISOString().slice(0, 10),
+        amount,
+      })),
+    ),
 
   'GET /me': (_body, request) => {
     const kind = kindFromToken(
