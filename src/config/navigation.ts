@@ -28,6 +28,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** Any of these grants visibility; omit for always visible. */
   permissions?: readonly PermissionCode[];
+  /** Extra path prefixes that belong to this item (active state + breadcrumb). */
+  matches?: readonly string[];
 }
 
 export interface NavGroup {
@@ -55,6 +57,7 @@ export const navigation: NavGroup[] = [
       {
         label: t.groupsSchedule,
         href: routes.groups.list,
+        matches: [routes.sessions.list, routes.halls.list],
         icon: CalendarDays,
         permissions: ['groups.view'],
       },
@@ -145,7 +148,9 @@ export const navigation: NavGroup[] = [
 export function findNavItem(pathname: string): NavItem | undefined {
   let best: NavItem | undefined;
   for (const item of navigation.flatMap((group) => group.items)) {
-    const matches = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const matches = [item.href, ...(item.matches ?? [])].some(
+      (href) => pathname === href || pathname.startsWith(`${href}/`),
+    );
     if (matches && (!best || item.href.length > best.href.length)) best = item;
   }
   return best;

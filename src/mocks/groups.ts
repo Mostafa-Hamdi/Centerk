@@ -163,3 +163,56 @@ export function groupsMock(method: string, path: string, body: Body, url: URL): 
   }
   return null;
 }
+
+/** Sessions generated from the groups' weekly slots (Cairo time ≈ UTC+3), with cancel/postpone state. */
+const sessionChanges = new Map<
+  string,
+  { status: 'Cancelled' | 'Postponed'; startsAtUtc?: string }
+>();
+
+export function sessionsMock(method: string, path: string, body: Body, url: URL): Response | null {
+  if (path === '/sessions' && method === 'GET') {
+    const from = new Date(
+      `${url.searchParams.get('from') ?? new Date().toISOString().slice(0, 10)}T00:00:00Z`,
+    );
+    const to = new Date(
+      `${url.searchParams.get('to') ?? from.toISOString().slice(0, 10)}T00:00:00Z`,
+    );
+    const groupId = url.searchParams.get('groupId');
+    const sessions = [];
+    for (let day = new Date(from); day <= to; day.setUTCDate(day.getUTCDate() + 1)) {
+      const date = day.toISOString().slice(0, 10);
+      for (const group of groups) {
+        if (group.status !== 'Active' || (groupId && group.id !== groupId)) continue;
+        for (const slot of group.schedule) {
+          if (slot.dayOfWeek !== day.getUTCDay()) continue;
+          const id = `${group.id}_${date}_${slot.startTime}`;
+          const change = sessionChanges.get(id);
+          sessions.push({
+            id,
+            groupId: group.id,
+            groupName: group.name,
+            hallName: group.hallName,
+            startsAtUtc:
+              change?.startsAtUtc ?? new Date(`${date}T${slot.startTime}:00+03:00`).toISOString(),
+            durationMinutes: slot.durationMinutes,
+            kind: 'Regular',
+            status: change?.status ?? 'Scheduled',
+            topic: null,
+          });
+        }
+      }
+    }
+    return json(sessions);
+  }
+  const match = /^\/sessions\/([^/]+)\/(cancel|postpone)$/.exec(path);
+  if (!match || method !== 'POST') return null;
+  const id = decodeURIComponent(match[1] ?? '');
+  if (match[2] === 'cancel') sessionChanges.set(id, { status: 'Cancelled' });
+  else
+    sessionChanges.set(id, {
+      status: 'Postponed',
+      startsAtUtc: text(body.startsAtUtc) || undefined,
+    });
+  return new Response(null, { status: 204 });
+}

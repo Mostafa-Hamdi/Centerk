@@ -58,12 +58,21 @@ export function GroupsListPage() {
           <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
-        <Can permission="groups.create">
-          <Link href={routes.groups.new} className={buttonVariants({ size: 'lg' })}>
-            <Plus className="size-4" aria-hidden />
-            {t.add}
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={routes.sessions.list}
+            className={buttonVariants({ variant: 'info', size: 'lg' })}
+          >
+            <CalendarDays className="size-4" aria-hidden />
+            {ar.sessions.scheduleLink}
           </Link>
-        </Can>
+          <Can permission="groups.create">
+            <Link href={routes.groups.new} className={buttonVariants({ size: 'lg' })}>
+              <Plus className="size-4" aria-hidden />
+              {t.add}
+            </Link>
+          </Can>
+        </div>
       </header>
 
       <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">

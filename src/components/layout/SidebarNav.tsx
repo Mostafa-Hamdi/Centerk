@@ -15,7 +15,9 @@ import { useAppSelector } from '@/store/hooks';
 function isActive(pathname: string, item: NavItem) {
   return item.href === routes.dashboard
     ? pathname === item.href
-    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    : [item.href, ...(item.matches ?? [])].some(
+        (href) => pathname === href || pathname.startsWith(`${href}/`),
+      );
 }
 
 interface SidebarNavProps {
