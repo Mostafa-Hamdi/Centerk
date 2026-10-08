@@ -20,6 +20,7 @@ export default tseslint.config(
       'playwright-report/**',
       'test-results/**',
       'next-env.d.ts',
+      'src/services/generated/**',
     ],
   },
   ...compat.extends('next/core-web-vitals'),

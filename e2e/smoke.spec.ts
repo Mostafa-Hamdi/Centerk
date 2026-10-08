@@ -16,6 +16,7 @@ test('staff login validates, then signs in and out', async ({ page }) => {
   await page.getByRole('button', { name: 'دخول' }).click();
   await expect(page.getByRole('alert').first()).toBeVisible();
 
+  await page.getByLabel('كود السنتر').fill(mockAccounts.tenantSlug);
   await page.getByLabel('رقم الموبايل').fill(mockAccounts.staff.phone);
   await page.getByLabel('كلمة السر', { exact: true }).fill(mockAccounts.staff.password);
   await page.getByRole('button', { name: 'دخول' }).click();
