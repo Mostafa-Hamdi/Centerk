@@ -1,5 +1,7 @@
 import { api } from '@/services/api';
+import { normalizePaged } from '@/services/normalize';
 import { toQueryParams, type ListParams, type Paged } from '@/services/types';
+import { normalizeStudentDetails, normalizeStudentRow } from './normalize';
 import type {
   EditStudent,
   NewStudent,
@@ -13,6 +15,8 @@ const studentsApi = api.injectEndpoints({
   endpoints: (build) => ({
     getStudents: build.query<Paged<StudentListItemDto>, ListParams>({
       query: (params) => ({ url: '/students', params: toQueryParams(params) }),
+      transformResponse: (raw: unknown, _meta, params) =>
+        normalizePaged(raw, normalizeStudentRow, params, 'students'),
       providesTags: (result) => [
         { type: 'Student', id: 'LIST' },
         ...(result?.items.map((student) => ({ type: 'Student' as const, id: student.id })) ?? []),
@@ -21,6 +25,7 @@ const studentsApi = api.injectEndpoints({
     }),
     getStudent: build.query<StudentDetailsDto, string>({
       query: (id) => `/students/${encodeURIComponent(id)}`,
+      transformResponse: normalizeStudentDetails,
       providesTags: (_result, _error, id) => [{ type: 'Student', id }],
       keepUnusedDataFor: 300,
     }),

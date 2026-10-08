@@ -201,7 +201,7 @@ const injectedRtkApi = api
         LegacyAuthControllerLoginApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/auth/login`,
+          url: `/api/v1/auth/login`,
           method: "POST",
           body: queryArg.loginRequest,
         }),
