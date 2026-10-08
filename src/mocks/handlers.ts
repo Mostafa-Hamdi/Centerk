@@ -32,7 +32,12 @@ const tokens = (kind: Kind) => ({
 });
 
 const wrongTenant = (body: Body) => body.tenantSlug !== mockAccounts.tenantSlug;
-const tenantProblem = () => problem(404, 'tenant-not-found', 'كود السنتر غير موجود');
+const tenantProblem = () =>
+  problem(
+    404,
+    'tenant-not-found',
+    'كود السنتر غير موجود (وضع التجربة — الباك اند الحقيقي مش متوصّل، استخدم demo)',
+  );
 
 const kindFromToken = (token: string | undefined, prefix: string): Kind | null => {
   const kind = token?.startsWith(prefix) ? token.split('.')[1] : undefined;
