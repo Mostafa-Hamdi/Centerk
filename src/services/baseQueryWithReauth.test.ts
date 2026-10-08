@@ -21,6 +21,7 @@ function makeApi(initialToken = 'old') {
       accessTokenExpiresAt: null,
       me: null,
       currentBranchId: null,
+      loginHint: null,
     },
   };
   const dispatch = vi.fn((action: { type: string; payload?: unknown }) => {
