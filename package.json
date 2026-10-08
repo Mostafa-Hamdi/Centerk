@@ -26,7 +26,8 @@
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [
       "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "vitest related --run --passWithNoTests"
     ],
     "*.{css,json,md}": [
       "prettier --write"
@@ -89,7 +90,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.1",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^5.0.3"
   }
 }
