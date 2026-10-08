@@ -12,6 +12,20 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "web-mock",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "cross-env",
+        "NEXT_PUBLIC_API_URL=/api/mock",
+        "API_MOCK=true",
+        "next",
+        "dev",
+        "-p",
+        "3001"
+      ],
+      "port": 3001
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { api } from '@/services/api';
-import { meLoaded } from '@/store/authSlice';
+import { meLoaded, type AuthState } from '@/store/authSlice';
 import { BFF } from './constants';
+import { normalizeMe } from './normalizeMe';
 import type {
   ClientSession,
   ForgotPasswordRequest,
@@ -37,7 +38,13 @@ export const authApi = api.injectEndpoints({
       query: (body) => ({ url: '/auth/password/reset', method: 'POST', body }),
     }),
     getMe: build.query<MeDto, undefined>({
-      query: () => '/me',
+      // Live /me is untyped and differs from the spec — normalized (token claims as fallback).
+      async queryFn(_arg, queryApi, _extraOptions, baseQuery) {
+        const result = await baseQuery('/me');
+        if (result.error) return { error: result.error };
+        const { accessToken } = (queryApi.getState() as { auth: AuthState }).auth;
+        return { data: normalizeMe(result.data, accessToken) };
+      },
       providesTags: ['Me'],
       keepUnusedDataFor: 60 * 60,
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
