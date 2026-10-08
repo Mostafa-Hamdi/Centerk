@@ -125,6 +125,10 @@ function Hero() {
   );
 }
 
+/** Formats a value or shows "—" when the backend didn't send it. */
+const orDash = (value: number | null, format: (value: number) => string) =>
+  value === null ? '—' : format(value);
+
 function Kpis() {
   const { data, isLoading, isError, refetch } = useGetDashboardSummaryQuery(undefined);
   if (isError) return <ErrorState title={ar.list.loadError} onRetry={() => void refetch()} />;
@@ -137,44 +141,58 @@ function Kpis() {
       </div>
     );
   }
-  const change = data.incomeYesterday
-    ? (data.incomeToday - data.incomeYesterday) / data.incomeYesterday
-    : 0;
-  const sign = change >= 0 ? '+' : '−';
+  // Values the backend doesn't send are null → "—" (see features/dashboard/normalize.ts).
+  const { incomeToday, incomeYesterday, sessionsToday, openDues } = data;
+  const change =
+    incomeToday !== null && incomeYesterday
+      ? (incomeToday - incomeYesterday) / incomeYesterday
+      : null;
   return (
     <div className="grid gap-(--shell-gap) sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         label={t.kpi.incomeToday}
-        value={formatMoney(data.incomeToday)}
+        value={orDash(incomeToday, formatMoney)}
         icon={Receipt}
         tone="success"
-        trend={{
-          label: t.kpi.vsYesterday(`${sign}${formatPercent(Math.abs(change))}`),
-          direction: change >= 0 ? 'up' : 'down',
-        }}
+        trend={
+          change === null
+            ? undefined
+            : {
+                label: t.kpi.vsYesterday(
+                  `${change >= 0 ? '+' : '−'}${formatPercent(Math.abs(change))}`,
+                ),
+                direction: change >= 0 ? 'up' : 'down',
+              }
+        }
       />
       <StatCard
         label={t.kpi.sessionsToday}
-        value={formatNumber(data.sessionsToday.total)}
+        value={orDash(sessionsToday.total, formatNumber)}
         icon={CalendarCheck}
         footer={
-          <p className="text-sm text-muted">
-            {t.kpi.sessionsBreakdown(data.sessionsToday.done, data.sessionsToday.upcoming)}
-          </p>
+          sessionsToday.done !== null && sessionsToday.upcoming !== null ? (
+            <p className="text-sm text-muted">
+              {t.kpi.sessionsBreakdown(sessionsToday.done, sessionsToday.upcoming)}
+            </p>
+          ) : null
         }
       />
       <StatCard
         label={t.kpi.attendance}
-        value={formatPercent(data.monthlyAttendanceRate)}
+        value={orDash(data.monthlyAttendanceRate, (rate) => formatPercent(rate))}
         icon={Percent}
         tone="cyan"
       />
       <StatCard
         label={t.kpi.openDues}
-        value={formatMoney(data.openDues.total)}
+        value={orDash(openDues.total, formatMoney)}
         icon={Wallet}
         tone="warning"
-        footer={<p className="text-sm text-muted">{t.kpi.openDuesCount(data.openDues.count)}</p>}
+        footer={
+          openDues.count === null ? null : (
+            <p className="text-sm text-muted">{t.kpi.openDuesCount(openDues.count)}</p>
+          )
+        }
       />
     </div>
   );
