@@ -1,5 +1,6 @@
 import type { MeDto } from '@/features/auth/types';
 import { mockAccounts, mockMe } from './fixtures';
+import { groupsMock } from './groups';
 import { studentsMock } from './students';
 
 /**
@@ -212,6 +213,8 @@ export async function handleMockRequest(method: string, path: string, request: R
       : ((await request.json().catch(() => ({}))) as Body);
   const handler = routes[`${method} ${path}`];
   if (handler) return handler(body, request);
-  const moduleResponse = studentsMock(method, path, body, new URL(request.url));
+  const moduleResponse =
+    studentsMock(method, path, body, new URL(request.url)) ??
+    groupsMock(method, path, body, new URL(request.url));
   return moduleResponse ?? problem(404, 'mock-not-found', `لا يوجد mock لـ ${method} ${path}`);
 }
