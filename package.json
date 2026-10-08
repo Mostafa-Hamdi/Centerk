@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "npm run clean && next dev",
     "build": "next build",
     "start": "next start",
     "analyze": "cross-env ANALYZE=true next build",
@@ -21,7 +22,8 @@
     "e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run test",
     "prepare": "husky",
-    "api:codegen": "rtk-query-codegen-openapi openapi-config.ts"
+    "api:codegen": "rtk-query-codegen-openapi openapi-config.ts",
+    "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\""
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [
