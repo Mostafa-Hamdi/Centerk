@@ -1,0 +1,164 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Tailwind theme → design tokens. Default palettes are reset (`--color-*: initial`) so
+ * only brand colors exist as utilities: hardcoded colors like `bg-blue-500` won't compile.
+ * `inline reference`: utilities point straight at the tokens and Tailwind emits no theme
+ * variables of its own (several names, e.g. --font-display, are shared with tokens.css).
+ */
+@theme inline reference {
+  --color-*: initial;
+  --color-canvas: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-glass: var(--surface-glass);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-soft: var(--primary-soft);
+  --color-cyan: var(--cyan);
+  --color-cyan-deep: var(--cyan-deep);
+  --color-cyan-tint: var(--cyan-tint);
+  --color-cyan-light: var(--cyan-light);
+
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-success-tint: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-hover: var(--warning-hover);
+  --color-warning-tint: var(--warning-tint);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-tint: var(--danger-tint);
+  --color-info: var(--info);
+  --color-info-tint: var(--info-tint);
+
+  --color-overlay: var(--overlay);
+  --color-skeleton: var(--skeleton);
+  --color-focus: var(--focus-ring);
+
+  --font-*: initial;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  /* rounded-sm 12 · rounded-md 16 · rounded-lg 20 · rounded-xl 24 (+ static rounded-full/none) */
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-*: initial;
+  --shadow-card: var(--shadow);
+  --shadow-lift: var(--shadow-hover);
+
+  --ease-brand: var(--ease);
+}
+
+@theme {
+  --animate-shake: shake 0.45s var(--ease);
+  --animate-rise: rise 0.45s var(--ease) both;
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px) rotate(-6deg);
+    }
+    75% {
+      transform: translateX(3px) rotate(6deg);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Toast auto-dismiss progress (visual only; the timer lives in JS). */
+@keyframes toast-progress {
+  from {
+    inline-size: 100%;
+  }
+  to {
+    inline-size: 0;
+  }
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line);
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--primary-soft);
+    color: var(--ink);
+  }
+}
+
+/* Glass surface for the floating header and overlays. */
+@utility glass {
+  background-color: var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(1.4); /* -webkit- prefix is added at build */
+}
+
+/* Stable-width digits for money, counters and tables. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,120 @@
+/*
+ * سنترك design tokens — the single source of truth for brand values.
+ * Tailwind utilities (bg-surface, text-ink, border-line, bg-primary …) map to these
+ * variables in globals.css, so changing a value here re-brands the whole app.
+ */
+:root {
+  color-scheme: light;
+
+  /* surfaces & text */
+  --bg: #f4f8fc;
+  --surface: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.88);
+  --line: #e1e9f2;
+  --ink: #0b2540;
+  --muted: #526b84;
+
+  /* brand */
+  --primary: #1d5bf0;
+  --primary-hover: #1648c4;
+  --primary-ink: #ffffff;
+  --primary-tint: #eaf1ff;
+  --primary-soft: #bcd0fb;
+  --cyan: #13b5d6;
+  --cyan-deep: #0b7489;
+  --cyan-tint: #e2f7fb;
+  --cyan-light: #7fe3f5;
+
+  /* status */
+  --success: #0e7a5a;
+  --success-hover: #0a5f46;
+  --success-tint: #e3f5ee;
+  --warning: #9a5b00;
+  --warning-hover: #7a4800;
+  --warning-tint: #fff3dc;
+  --danger: #b42318;
+  --danger-hover: #912018;
+  --danger-tint: #fdecea;
+  --info: #0b7489;
+  --info-tint: #e2f7fb;
+
+  /* utility colors (extensions of the brief) */
+  --overlay: rgba(11, 37, 64, 0.45);
+  --skeleton: #e9eff6;
+  --focus-ring: var(--cyan);
+
+  /* typography — next/font injects --font-alexandria / --font-plex-arabic on <html> */
+  --font-display: var(--font-alexandria), 'Alexandria', system-ui, sans-serif;
+  --font-body: var(--font-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
+
+  /* shape */
+  --radius-xl: 24px;
+  --radius: 20px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+
+  /* layout */
+  --side-open: 264px;
+  --side-closed: 84px;
+  --header-h: 68px;
+  --shell-gap: 16px;
+
+  /* elevation & motion */
+  --shadow: 0 1px 2px rgba(11, 37, 64, 0.04), 0 8px 24px rgba(11, 37, 64, 0.06);
+  --shadow-hover: 0 2px 4px rgba(11, 37, 64, 0.04), 0 18px 40px rgba(29, 91, 240, 0.16);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration: 250ms;
+  --duration-slow: 400ms;
+}
+
+/*
+ * Dark theme — same variable names, drop-in via <html data-theme="dark">.
+ * TODO(design): values below are a first draft; finalize with design + contrast audit.
+ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #08121f;
+  --surface: #0e1b2c;
+  --surface-glass: rgba(14, 27, 44, 0.86);
+  --line: #1d3048;
+  --ink: #e6eef7;
+  --muted: #93a9c0;
+
+  --primary: #4c82f7;
+  --primary-hover: #6a98fa;
+  --primary-ink: #ffffff;
+  --primary-tint: #13254a;
+  --primary-soft: #2a4a8f;
+  --cyan: #2bc7e6;
+  --cyan-deep: #7fe3f5;
+  --cyan-tint: #0e3440;
+  --cyan-light: #7fe3f5;
+
+  --success: #3fc79a;
+  --success-hover: #62d4ae;
+  --success-tint: #0f3328;
+  --warning: #f0b44c;
+  --warning-hover: #f4c670;
+  --warning-tint: #3a2a0d;
+  --danger: #f2766b;
+  --danger-hover: #f59a91;
+  --danger-tint: #3d1512;
+  --info: #7fe3f5;
+  --info-tint: #0e3440;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+  --skeleton: #16263a;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 40px rgba(76, 130, 247, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration: 0ms;
+    --duration-slow: 0ms;
+  }
+}
