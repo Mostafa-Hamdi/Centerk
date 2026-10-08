@@ -48,12 +48,23 @@ export function TabsList({
   );
 }
 
-export function TabsTrigger({ value, children }: { value: string; children: ReactNode }) {
+/** `onIntent` fires on hover/focus — use it to preload a lazy tab panel. */
+export function TabsTrigger({
+  value,
+  children,
+  onIntent,
+}: {
+  value: string;
+  children: ReactNode;
+  onIntent?: () => void;
+}) {
   const context = use(TabsContext);
   const active = context?.value === value;
   return (
     <RadixTabs.Trigger
       value={value}
+      onPointerEnter={onIntent}
+      onFocus={onIntent}
       className="relative isolate min-h-11 rounded-sm px-3 text-sm font-medium text-muted transition-colors duration-200 hover:text-ink data-[state=active]:text-primary"
     >
       {active ? (

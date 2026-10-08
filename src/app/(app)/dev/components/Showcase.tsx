@@ -2,6 +2,7 @@
 
 import type { ColumnDef, RowSelectionState, SortingState } from '@tanstack/react-table';
 import { Ban, Download, Plus, Printer, Receipt, Trash2, Users, Wallet } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useMemo, useState, type ReactNode } from 'react';
 import { BulkActionsBar } from '@/components/data/BulkActionsBar';
 import { DataTable } from '@/components/data/DataTable';
@@ -18,6 +19,8 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Input } from '@/components/ui/Input';
+import { Combobox } from '@/components/ui/Combobox';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -26,6 +29,11 @@ import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { ar } from '@/i18n/ar';
 import { formatMoney, formatNumber } from '@/lib/format';
+
+// Heavy + below the fold: loaded on demand.
+const FileUpload = dynamic(() => import('@/components/ui/FileUpload'), {
+  loading: () => <Skeleton className="h-36 w-full rounded-lg" />,
+});
 
 interface DemoStudent {
   id: string;
@@ -65,6 +73,9 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function Showcase() {
   const [confirm, setConfirm] = useState<'delete' | 'void' | 'typed' | null>(null);
   const [otp, setOtp] = useState('');
+  const [student, setStudent] = useState<string>();
+  const [date, setDate] = useState('2026-10-08');
+  const [file, setFile] = useState<File | null>(null);
   const [switchOn, setSwitchOn] = useState(true);
   const [checked, setChecked] = useState(false);
   const [group, setGroup] = useState<string>();
@@ -219,6 +230,27 @@ export function Showcase() {
               onComplete={(code) => toast.info(`الكود ${code}`)}
             />
           </div>
+          <FormField label="الطالب (بحث)">
+            {(control) => (
+              <Combobox
+                {...control}
+                value={student}
+                onValueChange={setStudent}
+                placeholder="اختار الطالب"
+                options={demoRows
+                  .slice(0, 12)
+                  .map((row) => ({ value: row.id, label: `${row.name} · ${row.group}` }))}
+              />
+            )}
+          </FormField>
+          <FormField label="تاريخ البداية">
+            {(control) => <DatePicker {...control} value={date} onChange={setDate} />}
+          </FormField>
+          <FormField label="ملف الطلاب (Excel)" className="md:col-span-2">
+            {(control) => (
+              <FileUpload id={control.id} preset="xlsx" value={file} onChange={setFile} />
+            )}
+          </FormField>
         </div>
       </Section>
 
