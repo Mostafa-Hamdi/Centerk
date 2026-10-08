@@ -13,6 +13,11 @@ export default async function ResetPasswordPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { token } = await searchParams;
-  return <ResetPasswordForm token={typeof token === 'string' && token ? token : null} />;
+  const { token, tenant } = await searchParams;
+  return (
+    <ResetPasswordForm
+      token={typeof token === 'string' && token ? token : null}
+      tenant={typeof tenant === 'string' ? tenant : null}
+    />
+  );
 }

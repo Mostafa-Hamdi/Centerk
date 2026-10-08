@@ -126,7 +126,9 @@ export function normalizeMe(
   const hasRole = (key: string) =>
     roleKeys.some((role) => role.includes(key) || role.includes(ROLE_LABELS[key] ?? '§'));
 
-  const explicitOwner = read(raw, ['isOwner', 'profile.isOwner', 'user.isOwner']);
+  const explicitOwner = sources
+    .map((source) => read(source, ['isOwner']))
+    .find((value) => value !== undefined);
   const kindValue = pick('kind', 'accountType', 'userType', 'actorType')?.toLowerCase();
   const kind: AccountKind =
     kindValue === 'guardian' || (!kindValue && hasRole('guardian'))
@@ -140,7 +142,9 @@ export function normalizeMe(
     .map(toBranch)
     .filter((branch): branch is BranchDto => branch !== null);
 
-  const permissionsRaw = read(raw, ['permissions', 'profile.permissions', 'permissionCodes']);
+  const permissionsRaw = sources
+    .map((source) => read(source, ['permissions', 'permissionCodes']))
+    .find(Boolean);
   const permissions = Array.isArray(permissionsRaw)
     ? permissionsRaw
         .map((item) => (typeof item === 'string' ? item : str(item, 'code')))
@@ -153,7 +157,9 @@ export function normalizeMe(
 
   const plan = pick('tenant.plan', 'plan', 'planCode') ?? str(claims, 'plan');
   const scope = pick('dataScope', 'scope') ?? str(claims, 'scope');
-  const hidePhones = read(raw, ['hidePhones', 'profile.hidePhones']);
+  const hidePhones = sources
+    .map((source) => read(source, ['hidePhones']))
+    .find((value) => value !== undefined);
 
   const me: MeDto = {
     id: pick('id', 'userId', 'sub') ?? str(claims, 'sub', ID_CLAIM) ?? '',

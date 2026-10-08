@@ -79,10 +79,12 @@ export interface OtpVerifyRequest {
 }
 
 export interface ForgotPasswordRequest {
+  tenantSlug: string;
   phone: string;
 }
 
 export interface ResetPasswordRequest {
+  tenantSlug: string;
   token: string;
   newPassword: string;
 }

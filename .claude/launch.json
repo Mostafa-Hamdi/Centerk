@@ -14,6 +14,12 @@
       "port": 3000
     },
     {
+      "name": "web-real",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3002"],
+      "port": 3002
+    },
+    {
       "name": "web-mock",
       "runtimeExecutable": "npx",
       "runtimeArgs": [

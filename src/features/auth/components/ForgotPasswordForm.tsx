@@ -21,6 +21,7 @@ import { OTP_RESEND_SECONDS } from '../constants';
 import { useShake } from '../hooks/useShake';
 import { forgotPasswordSchema } from '../schemas';
 import { AuthCard } from './AuthCard';
+import { rememberTenantSlug, TenantSlugField } from './TenantSlugField';
 
 type ForgotInput = z.input<typeof forgotPasswordSchema>;
 type ForgotOutput = z.output<typeof forgotPasswordSchema>;
@@ -30,24 +31,25 @@ const t = ar.auth.forgot;
 /** backend-spec §10.1: POST /auth/password/forgot sends a reset link via WhatsApp. */
 export function ForgotPasswordForm() {
   const [cardRef, shake] = useShake();
-  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<ForgotOutput | null>(null);
   const [forgotPassword] = useForgotPasswordMutation();
   const countdown = useCountdown(0);
   const form = useForm<ForgotInput, unknown, ForgotOutput>({
     resolver: zodResolver(forgotPasswordSchema),
     mode: 'onBlur',
-    defaultValues: { phone: '' },
+    defaultValues: { tenantSlug: '', phone: '' },
   });
   const { errors, isSubmitting } = form.formState;
 
-  const send = async ({ phone }: ForgotOutput) => {
+  const send = async ({ tenantSlug, phone }: ForgotOutput) => {
     try {
-      await forgotPassword({ phone }).unwrap();
-      setSentTo(phone);
+      await forgotPassword({ tenantSlug, phone }).unwrap();
+      rememberTenantSlug(tenantSlug);
+      setSentTo({ tenantSlug, phone });
       countdown.restart(OTP_RESEND_SECONDS);
     } catch (error) {
       const problem = toProblem(error);
-      applyServerErrors(problem, form.setError, ['phone']);
+      applyServerErrors(problem, form.setError, ['tenantSlug', 'phone']);
       shake();
       toast.error(problem.title, problem.detail);
     }
@@ -82,7 +84,7 @@ export function ForgotPasswordForm() {
             fullWidth
             disabled={!countdown.done}
             loading={isSubmitting}
-            onClick={() => void send({ phone: sentTo })}
+            onClick={() => void send(sentTo)}
           >
             {countdown.done ? t.resend : ar.auth.portal.resendIn(countdown.secondsLeft)}
           </Button>
@@ -104,6 +106,11 @@ export function ForgotPasswordForm() {
         }}
         className="flex flex-col gap-5"
       >
+        <TenantSlugField
+          registration={form.register('tenantSlug')}
+          error={errors.tenantSlug?.message}
+          onRestore={(slug) => form.setValue('tenantSlug', slug)}
+        />
         <FormField label={ar.auth.login.phone} error={errors.phone?.message} required>
           {(control) => (
             <Input

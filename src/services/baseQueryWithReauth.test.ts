@@ -123,7 +123,7 @@ describe('baseQueryWithReauth', () => {
       refresh,
       onSessionExpired: vi.fn(),
     });
-    await expect(query('/api/auth/login', api, { bff: true })).resolves.toEqual(unauthorized);
+    await expect(query('/api/v1/auth/login', api, { bff: true })).resolves.toEqual(unauthorized);
     expect(refresh).not.toHaveBeenCalled();
   });
 });

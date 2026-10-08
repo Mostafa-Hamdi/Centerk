@@ -19,6 +19,7 @@ import { useResetPasswordMutation } from '../api';
 import { useShake } from '../hooks/useShake';
 import { resetPasswordSchema } from '../schemas';
 import { AuthCard } from './AuthCard';
+import { TenantSlugField } from './TenantSlugField';
 
 type ResetInput = z.input<typeof resetPasswordSchema>;
 type ResetOutput = z.output<typeof resetPasswordSchema>;
@@ -33,14 +34,20 @@ const rules = [
 ];
 
 /** Opened from the WhatsApp link: /reset-password?token=… → POST /auth/password/reset. */
-export function ResetPasswordForm({ token }: { token: string | null }) {
+export function ResetPasswordForm({
+  token,
+  tenant,
+}: {
+  token: string | null;
+  tenant?: string | null;
+}) {
   const router = useRouter();
   const [cardRef, shake] = useShake();
   const [resetPassword] = useResetPasswordMutation();
   const form = useForm<ResetInput, unknown, ResetOutput>({
     resolver: zodResolver(resetPasswordSchema),
     mode: 'onBlur',
-    defaultValues: { newPassword: '', confirmPassword: '' },
+    defaultValues: { tenantSlug: tenant ?? '', newPassword: '', confirmPassword: '' },
   });
   const { errors, isSubmitting, isSubmitSuccessful } = form.formState;
   const password = form.watch('newPassword');
@@ -66,9 +73,9 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
     );
   }
 
-  const onValid = async ({ newPassword }: ResetOutput) => {
+  const onValid = async ({ tenantSlug, newPassword }: ResetOutput) => {
     try {
-      await resetPassword({ token, newPassword }).unwrap();
+      await resetPassword({ tenantSlug, token, newPassword }).unwrap();
       toast.success(t.success, t.successDesc);
       window.setTimeout(() => {
         router.replace(routes.login);
@@ -96,6 +103,13 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         }}
         className="flex flex-col gap-5"
       >
+        <TenantSlugField
+          registration={form.register('tenantSlug')}
+          error={errors.tenantSlug?.message}
+          onRestore={(slug) => {
+            if (!form.getValues('tenantSlug')) form.setValue('tenantSlug', slug);
+          }}
+        />
         <FormField label={t.newPassword} error={errors.newPassword?.message} required>
           {(control) => (
             <PasswordInput

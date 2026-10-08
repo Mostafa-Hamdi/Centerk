@@ -110,6 +110,7 @@ describe('otpCodeSchema', () => {
 describe('resetPasswordSchema', () => {
   it('flags mismatched confirmation on confirmPassword', () => {
     const result = resetPasswordSchema.safeParse({
+      tenantSlug: 'demo',
       newPassword: 'abc12345',
       confirmPassword: 'abc12346',
     });

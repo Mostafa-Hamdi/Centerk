@@ -89,10 +89,11 @@ export const portalIdentifySchema = z
     },
   }));
 
-export const forgotPasswordSchema = z.object({ phone: phoneSchema });
+export const forgotPasswordSchema = z.object({ tenantSlug: tenantSlugSchema, phone: phoneSchema });
 
 export const resetPasswordSchema = z
   .object({
+    tenantSlug: tenantSlugSchema,
     newPassword: newPasswordSchema,
     confirmPassword: z.string().min(1, v.required),
   })
