@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BookOpen, Building2, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -279,6 +280,11 @@ function SubjectsCard() {
         <BookOpen className="size-5 text-muted" aria-hidden />
         {t.subjects.title}
       </h2>
+      <Can permission="settings.view">
+        <div>
+          <ExportButton path="/subjects/export" params={{}} fileName="subjects" />
+        </div>
+      </Can>
       <Can permission="settings.update">
         <form
           noValidate

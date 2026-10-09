@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileSignature, GraduationCap, Pencil, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
@@ -80,6 +81,11 @@ export function TeachersPage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
         <p className="mt-1 text-muted">{t.description}</p>
+        <Can permission="centers.teachers">
+          <div className="mt-3">
+            <ExportButton path="/teachers/export" params={{}} fileName="teachers" />
+          </div>
+        </Can>
       </header>
       <CentersTabs />
 

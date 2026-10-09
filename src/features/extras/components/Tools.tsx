@@ -478,7 +478,10 @@ function CatalogList({
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="font-semibold text-ink">{title}</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-semibold text-ink">{title}</h3>
+        <ExportButton path={`/${resource}/export`} params={{}} fileName={resource} />
+      </div>
       {parent}
       <div className="flex gap-2">
         <Input
