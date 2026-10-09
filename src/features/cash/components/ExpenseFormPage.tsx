@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { toast } from '@/components/feedback/toast';
@@ -9,8 +10,10 @@ import { FormActions } from '@/components/form/FormActions';
 import { FormField } from '@/components/form/FormField';
 import { FormPage } from '@/components/form/FormPage';
 import { FormSection } from '@/components/form/FormSection';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { routes } from '@/config/routes';
 import { ar } from '@/i18n/ar';
@@ -23,6 +26,8 @@ import {
   useCreateExpenseMutation,
   useGetCurrentShiftQuery,
   useGetExpenseCategoriesQuery,
+  useGetExpenseQuery,
+  useUpdateExpenseMutation,
 } from '../api';
 
 const t = ar.expenses;
@@ -45,13 +50,15 @@ const expenseSchema = z.object({
 type ExpenseInput = z.input<typeof expenseSchema>;
 type ExpenseValues = z.output<typeof expenseSchema>;
 
-/** /expenses/new — record an expense against the open cash shift (if any). */
-export function ExpenseCreatePage() {
+/** /expenses/new and /expenses/[id]/edit — an expense against the open cash shift (if any). */
+export function ExpenseFormPage({ id }: { id?: string }) {
   const router = useRouter();
   const branchId = useAppSelector(selectCurrentBranchId);
   const shift = useGetCurrentShiftQuery(undefined);
   const categories = useGetExpenseCategoriesQuery(undefined);
   const [create] = useCreateExpenseMutation();
+  const [update] = useUpdateExpenseMutation();
+  const expense = useGetExpenseQuery(id ?? '', { skip: !id });
   const form = useForm<ExpenseInput, unknown, ExpenseValues>({
     resolver: zodResolver(expenseSchema),
     mode: 'onBlur',
@@ -63,13 +70,29 @@ export function ExpenseCreatePage() {
     label: category.name,
   }));
 
+  useEffect(() => {
+    if (expense.data) {
+      form.reset({
+        category: expense.data.category,
+        description: expense.data.description ?? '',
+        amount: String(expense.data.amount),
+      });
+    }
+  }, [expense.data, form]);
+
+  if (id && expense.error)
+    return <ErrorState title={ar.list.loadError} onRetry={() => void expense.refetch()} />;
+  if (id && !expense.data)
+    return <Skeleton className="mx-auto h-[24rem] w-full max-w-5xl rounded-xl" />;
+
   const save = async (values: ExpenseValues) => {
     try {
-      await create({
+      const body = {
         ...values,
         branchId: branchId ?? undefined,
-        cashShiftId: shift.data?.id,
-      }).unwrap();
+        cashShiftId: expense.data?.cashShiftId ?? shift.data?.id,
+      };
+      await (id ? update({ id, ...body }) : create(body)).unwrap();
       toast.success(t.form.done, `${values.category} · ${formatMoney(values.amount)}`);
       router.replace(routes.expenses.list);
     } catch (caught) {
@@ -82,7 +105,7 @@ export function ExpenseCreatePage() {
 
   return (
     <FormPage
-      title={t.form.title}
+      title={id ? t.form.editTitle : t.form.title}
       description={shift.data ? t.form.shift : t.form.noShift}
       backHref={routes.expenses.list}
       onSubmit={(event) => {
@@ -98,7 +121,7 @@ export function ExpenseCreatePage() {
           cancelHref={routes.expenses.list}
           submitting={isSubmitting || isSubmitSuccessful}
           dirty={isDirty && !isSubmitSuccessful}
-          submitLabel={t.form.submit}
+          submitLabel={id ? ar.common.save : t.form.submit}
         />
       }
     >

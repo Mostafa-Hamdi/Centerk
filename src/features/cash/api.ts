@@ -122,6 +122,24 @@ const cashApi = api.injectEndpoints({
         normalizePaged(raw, normalizeExpense, params, 'expenses'),
       providesTags: [{ type: 'Expense', id: 'LIST' }],
     }),
+    getExpense: build.query<ExpenseDto, string>({
+      query: (id) => `/expenses/${encodeURIComponent(id)}`,
+      transformResponse: (raw: unknown) => normalizeExpense(raw, 0),
+      providesTags: (_result, _error, id) => [{ type: 'Expense', id }],
+    }),
+    updateExpense: build.mutation<ExpenseDto, NewExpense & { id: string }>({
+      query: ({ id, ...body }) => ({
+        url: `/expenses/${encodeURIComponent(id)}`,
+        method: 'PUT',
+        body,
+      }),
+      transformResponse: (raw: unknown) => normalizeExpense(raw, 0),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Expense', id },
+        { type: 'Expense', id: 'LIST' },
+        { type: 'CashShift', id: 'CURRENT' },
+      ],
+    }),
     createExpense: build.mutation<ExpenseDto, NewExpense>({
       query: (body) => ({ url: '/expenses', method: 'POST', body }),
       transformResponse: (raw: unknown) => normalizeExpense(raw, 0),
@@ -174,6 +192,8 @@ export const {
   useCloseShiftMutation,
   useGetExpensesQuery,
   useCreateExpenseMutation,
+  useGetExpenseQuery,
+  useUpdateExpenseMutation,
   useReviewExpenseMutation,
   useDeleteExpenseMutation,
   useGetExpenseCategoriesQuery,

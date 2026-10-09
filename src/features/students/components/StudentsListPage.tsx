@@ -1,7 +1,7 @@
 'use client';
 
 import type { RowSelectionState } from '@tanstack/react-table';
-import { FileUp, Plus, Trash2, Users } from 'lucide-react';
+import { FileUp, Plus, Trash2, Users, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -87,6 +87,13 @@ export function StudentsListPage() {
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            href={routes.guardians.list}
+            className={buttonVariants({ variant: 'ghost', size: 'lg' })}
+          >
+            <UsersRound className="size-4" aria-hidden />
+            {ar.guardians.link}
+          </Link>
           <Can permission="students.import">
             <Link
               href={routes.students.import}

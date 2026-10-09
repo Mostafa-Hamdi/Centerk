@@ -1,7 +1,7 @@
 'use client';
 
 import type { ColumnDef } from '@tanstack/react-table';
-import { Check, Plus, ReceiptText, Trash2, X } from 'lucide-react';
+import { Check, Pencil, Plus, ReceiptText, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -110,6 +110,15 @@ export function ExpensesPage() {
                 >
                   {t.reject}
                 </Button>
+              </Can>
+              <Can permission="cash.update">
+                <Link
+                  href={routes.expenses.edit(row.original.id)}
+                  aria-label={`${ar.common.edit} ${row.original.category}`}
+                  className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                >
+                  <Pencil className="size-4" aria-hidden />
+                </Link>
               </Can>
               <Can permission="cash.delete">
                 <Button

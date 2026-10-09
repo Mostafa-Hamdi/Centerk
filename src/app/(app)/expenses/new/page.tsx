@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ExpenseCreatePage } from '@/features/cash/components/ExpenseCreatePage';
+import { ExpenseFormPage } from '@/features/cash/components/ExpenseFormPage';
 import { ar } from '@/i18n/ar';
 
 export const metadata: Metadata = { title: ar.expenses.form.title };
 
 export default function Page() {
-  return <ExpenseCreatePage />;
+  return <ExpenseFormPage />;
 }

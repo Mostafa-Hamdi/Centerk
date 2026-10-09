@@ -67,6 +67,7 @@ export const navigation: NavGroup[] = [
         href: routes.students.list,
         icon: Users,
         permissions: ['students.view'],
+        matches: [routes.guardians.list],
       },
       {
         label: t.groupsSchedule,
