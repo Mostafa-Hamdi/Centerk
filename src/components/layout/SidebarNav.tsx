@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { navigation, type NavItem } from '@/config/navigation';
+import { navigation, portalNavigation, type NavItem } from '@/config/navigation';
 import { routes } from '@/config/routes';
 import { hasPermission } from '@/features/auth/permissions';
 import { ar } from '@/i18n/ar';
@@ -13,7 +13,7 @@ import { selectMe } from '@/store/authSlice';
 import { useAppSelector } from '@/store/hooks';
 
 function isActive(pathname: string, item: NavItem) {
-  return item.href === routes.dashboard
+  return item.href === routes.dashboard || item.href === routes.portal.home
     ? pathname === item.href
     : [item.href, ...(item.matches ?? [])].some(
         (href) => pathname === href || pathname.startsWith(`${href}/`),
@@ -32,7 +32,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const me = useAppSelector(selectMe);
   const groups = useMemo(
     () =>
-      navigation
+      (me && me.kind !== 'Staff' ? portalNavigation : navigation)
         .map((group) => ({
           ...group,
           items: group.items.filter(

@@ -6,6 +6,8 @@ import {
   ChartColumn,
   ClipboardCheck,
   FileQuestion,
+  FileText,
+  Home,
   History,
   LayoutDashboard,
   MessageSquareText,
@@ -38,6 +40,18 @@ export interface NavGroup {
 }
 
 const t = ar.nav;
+
+/** Guardian / student sidebar (portal accounts have no staff permissions). */
+export const portalNavigation: NavGroup[] = [
+  {
+    label: ar.portal.title,
+    items: [
+      { label: ar.portal.nav.home, href: routes.portal.home, icon: Home },
+      { label: ar.portal.nav.exams, href: routes.portal.exams, icon: FileQuestion },
+      { label: ar.portal.nav.assignments, href: routes.portal.assignments, icon: FileText },
+    ],
+  },
+];
 
 /** Staff sidebar — the 19 modules of the brief (portal & exam-taking are student-side). */
 export const navigation: NavGroup[] = [

@@ -68,6 +68,7 @@ export const routes = {
   portal: {
     home: '/portal',
     exams: '/portal/exams',
+    assignments: '/portal/assignments',
     attempt: (attemptId: Id) => `/portal/exams/attempts/${encodeURIComponent(attemptId)}`,
   },
   dev: { components: '/dev/components' },
