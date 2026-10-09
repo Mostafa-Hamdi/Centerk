@@ -53,10 +53,31 @@ function normalizeQuizList(raw: unknown): QuizListItemDto[] {
 }
 
 function normalizeQuizDetails(raw: unknown): QuizDetailsDto {
-  const rows = read(raw, 'grades', 'rows', 'students');
+  // Live QuizGradesSheetDto: roster (all students) + grades (graded only) → one row per student.
+  const gradedRaw = read(raw, 'grades', 'rows', 'students');
+  const rosterRaw = read(raw, 'roster');
+  const graded: unknown[] | null = Array.isArray(gradedRaw) ? (gradedRaw as unknown[]) : null;
+  const roster: unknown[] | null = Array.isArray(rosterRaw) ? (rosterRaw as unknown[]) : null;
+  const rows = roster
+    ? roster.map((student) => {
+        const id = readString(student, 'id', 'studentId');
+        const grade = graded
+          ? graded.find((item) => readString(item, 'studentId', 'student.id') === id)
+          : undefined;
+        return {
+          studentId: id,
+          studentName: readString(student, 'fullName', 'name'),
+          studentCode: readString(student, 'code'),
+          score: grade === undefined ? null : readNumber(grade, 'score'),
+        };
+      })
+    : graded;
   if (!Array.isArray(rows)) warnShape('quizzes/{id}', raw);
   return {
     ...normalizeQuiz(read(raw, 'quiz') ?? raw, 0),
+    groupId: readString(raw, 'groupId', 'quiz.groupId'),
+    groupName: readString(raw, 'groupName', 'quiz.groupName'),
+    average: readNumber(raw, 'average', 'quiz.average'),
     grades: Array.isArray(rows)
       ? rows.map((row, index) => ({
           studentId: readString(row, 'studentId', 'student.id', 'id') ?? `student-${index}`,

@@ -53,7 +53,20 @@ const toStatus = (value: string | null) =>
 
 function normalizeAttendance(raw: unknown): SessionAttendanceDto {
   const records = read(raw, 'records', 'items', 'attendance');
-  const pending = read(raw, 'notRecorded', 'notYetRecorded', 'roster', 'pending');
+  // Live AttendanceSheetDto: full roster + missingStudentIds → not recorded = roster ∩ missing.
+  const roster = read(raw, 'roster');
+  const missing = read(raw, 'missingStudentIds');
+  const recordedIds = Array.isArray(records)
+    ? records.map((record) => readString(record, 'studentId', 'student.id'))
+    : [];
+  const pending =
+    read(raw, 'notRecorded', 'notYetRecorded', 'pending') ??
+    (Array.isArray(roster)
+      ? roster.filter((student) => {
+          const id = readString(student, 'id', 'studentId');
+          return Array.isArray(missing) ? missing.includes(id) : !recordedIds.includes(id);
+        })
+      : undefined);
   if (!Array.isArray(records)) warnShape('sessions/{id}/attendance', raw);
   const recordList = Array.isArray(records)
     ? records.map((record, index): AttendanceRecordDto => ({
@@ -62,7 +75,13 @@ function normalizeAttendance(raw: unknown): SessionAttendanceDto {
         studentName: readString(record, 'studentName', 'student.fullName', 'fullName') ?? '—',
         code: readString(record, 'code', 'studentCode', 'student.code'),
         status: toStatus(readString(record, 'status')),
-        checkedInAt: readString(record, 'checkedInAt', 'checkedInAtUtc', 'scannedAt'),
+        checkedInAt: readString(
+          record,
+          'recordedAtUtc',
+          'checkedInAt',
+          'checkedInAtUtc',
+          'scannedAt',
+        ),
       }))
     : [];
   const count = (status: AttendanceStatus) =>
@@ -84,12 +103,12 @@ function normalizeAttendance(raw: unknown): SessionAttendanceDto {
       read(raw, 'closed', 'isClosed', 'session.isClosed') === true ||
       readString(raw, 'status', 'session.status')?.toLowerCase() === 'closed',
     counters: {
-      present: readNumber(raw, 'counters.present', 'presentCount') ?? count('Present'),
+      present: readNumber(raw, 'present', 'counters.present', 'presentCount') ?? count('Present'),
       late: readNumber(raw, 'counters.late', 'lateCount') ?? count('Late'),
-      absent: readNumber(raw, 'counters.absent', 'absentCount') ?? count('Absent'),
+      absent: readNumber(raw, 'absent', 'counters.absent', 'absentCount') ?? count('Absent'),
       excused: readNumber(raw, 'counters.excused', 'excusedCount') ?? count('Excused'),
       expected:
-        readNumber(raw, 'counters.expected', 'expectedCount', 'enrolledCount') ??
+        readNumber(raw, 'expected', 'counters.expected', 'expectedCount', 'enrolledCount') ??
         recordList.length + notRecorded.length,
     },
     records: recordList,
@@ -104,7 +123,10 @@ export function normalizeScan(raw: unknown): ScanResult {
   const late =
     outcome.includes('late') ||
     readString(raw, 'attendanceStatus', 'record.status')?.toLowerCase() === 'late';
-  const already = outcome.includes('already') || outcome.includes('duplicate');
+  const already =
+    read(raw, 'alreadyRecorded') === true ||
+    outcome.includes('already') ||
+    outcome.includes('duplicate');
   const tone: ScanTone = already ? 'info' : late || (balance ?? 0) > 0 ? 'warning' : 'success';
   return {
     tone,
