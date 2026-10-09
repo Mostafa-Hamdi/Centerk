@@ -55,7 +55,7 @@ export function GroupFormPage({ id }: { id?: string }) {
   const branchId = useAppSelector(selectCurrentBranchId);
   const group = useGetGroupQuery(id ?? '', { skip: !id });
   const halls = useGetHallsQuery(branchId ?? undefined);
-  const teachers = useGetTeachersQuery({ page: 1, pageSize: 200 });
+  const teachers = useGetTeachersQuery({ page: 1, pageSize: 100 });
   const [createGroup] = useCreateGroupMutation();
   const [updateGroup] = useUpdateGroupMutation();
   const schedule = useGetGroupScheduleQuery(id ?? '', { skip: !id });

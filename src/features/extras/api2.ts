@@ -56,7 +56,7 @@ const named = (parentKey?: string) => (raw: unknown) =>
     parentId: parentKey ? readString(item, parentKey) : null,
   }));
 
-const ALL = { page: 1, pageSize: 200, includeInactive: true };
+const ALL = { page: 1, pageSize: 100, includeInactive: true };
 
 const api2 = api.injectEndpoints({
   endpoints: (build) => ({

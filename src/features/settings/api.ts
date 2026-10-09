@@ -96,7 +96,7 @@ const settingsApi = api.injectEndpoints({
     getGradeLevelsSettings: build.query<GradeLevelSettingDto[], undefined>({
       query: () => ({
         url: '/grade-levels',
-        params: { page: 1, pageSize: 200, includeInactive: true },
+        params: { page: 1, pageSize: 100, includeInactive: true },
       }),
       transformResponse: (raw: unknown) =>
         list(raw)
@@ -189,7 +189,7 @@ const settingsApi = api.injectEndpoints({
     getSubjectsSettings: build.query<SubjectDto[], undefined>({
       query: () => ({
         url: '/subjects',
-        params: { page: 1, pageSize: 200, includeInactive: true },
+        params: { page: 1, pageSize: 100, includeInactive: true },
       }),
       transformResponse: (raw: unknown) =>
         list(raw).map((item, index) => ({

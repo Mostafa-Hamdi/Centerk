@@ -85,7 +85,7 @@ export type QuestionInput = Omit<QuestionRequest, 'type' | 'difficulty' | 'optio
   options: QuestionOption[];
 };
 
-const ALL = { page: 1, pageSize: 200 };
+const ALL = { page: 1, pageSize: 100 };
 
 const questionsApi = api.injectEndpoints({
   endpoints: (build) => ({
