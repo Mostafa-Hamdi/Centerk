@@ -5,8 +5,10 @@ import { m } from 'framer-motion';
 import { CornerDownLeft, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type KeyboardEvent } from 'react';
+import { useDebounce } from 'use-debounce';
 import { navigation } from '@/config/navigation';
 import { hasPermission } from '@/features/auth/permissions';
+import { searchTarget, useGlobalSearchQuery } from '@/features/search/api';
 import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 import { selectMe } from '@/store/authSlice';
@@ -33,7 +35,7 @@ export default function CommandPalette() {
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const items = useMemo(() => {
+  const navItems = useMemo(() => {
     const allowed = navigation
       .flatMap((group) => group.items.map((item) => ({ ...item, group: group.label })))
       .filter((item) => !item.permissions || hasPermission(me, item.permissions, 'any'));
@@ -42,6 +44,26 @@ export default function CommandPalette() {
       ? allowed.filter((item) => normalize(`${item.label} ${item.group}`).includes(needle))
       : allowed;
   }, [me, query]);
+
+  // Live GET /search results first (≥2 chars, debounced), then matching navigation entries.
+  const [debounced] = useDebounce(query.trim(), 300);
+  const search = useGlobalSearchQuery(debounced, { skip: debounced.length < 2 });
+  const items = useMemo(() => {
+    const results = (search.data ?? []).flatMap((result) => {
+      const target = searchTarget(result);
+      return target
+        ? [
+            {
+              label: result.label,
+              href: target.href,
+              icon: target.icon,
+              group: result.subtitle ?? '',
+            },
+          ]
+        : [];
+    });
+    return [...results, ...navItems];
+  }, [search.data, navItems]);
 
   const close = () => dispatch(commandPaletteToggled(false));
   const go = (href: string) => {

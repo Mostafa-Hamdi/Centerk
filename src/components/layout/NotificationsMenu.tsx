@@ -73,7 +73,9 @@ export function NotificationsMenu() {
                 <ul className="max-h-96 overflow-y-auto overscroll-contain p-2">
                   {data?.items.length ? (
                     data.items.map((item) => {
-                      const { icon: Icon, chip } = icons[item.type];
+                      // Unknown types from the backend fall back to the generic style.
+                      const { icon: Icon, chip } =
+                        (icons as Partial<typeof icons>)[item.type] ?? icons.System;
                       return (
                         <li
                           key={item.id}

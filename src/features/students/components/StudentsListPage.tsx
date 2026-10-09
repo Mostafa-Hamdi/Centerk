@@ -20,7 +20,12 @@ import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
 import { ar } from '@/i18n/ar';
 import { toProblem } from '@/lib/problem-details';
-import { useDeleteStudentMutation, useGetStudentsQuery, useStudentsPrefetch } from '../api';
+import {
+  useBulkDeleteStudentsMutation,
+  useDeleteStudentMutation,
+  useGetStudentsQuery,
+  useStudentsPrefetch,
+} from '../api';
 import { useStudentColumns } from '../columns';
 import type { StudentListItemDto } from '../types';
 
@@ -34,6 +39,7 @@ export function StudentsListPage() {
   const list = useListQueryParams();
   const { data, isLoading, isFetching, error, refetch } = useGetStudentsQuery(list.params);
   const [deleteStudent] = useDeleteStudentMutation();
+  const [bulkDelete] = useBulkDeleteStudentsMutation();
   const prefetchStudent = useStudentsPrefetch('getStudent');
   const [selection, setSelection] = useState<RowSelectionState>({});
   const [pending, setPending] = useState<PendingDelete | null>(null);
@@ -56,8 +62,15 @@ export function StudentsListPage() {
       return;
     }
     // No bulk endpoint in the live API: archive one by one, report partial failures.
-    const results = await Promise.allSettled(pending.ids.map((id) => deleteStudent(id).unwrap()));
-    const failed = results.filter((result) => result.status === 'rejected').length;
+    // Live POST /students/bulk-delete returns a per-id result.
+    let failed = pending.ids.length;
+    try {
+      const results = await bulkDelete(pending.ids).unwrap();
+      failed = results.filter((result) => !result.ok).length;
+    } catch (caught) {
+      toast.error(toProblem(caught).title);
+      throw caught;
+    }
     setSelection({});
     if (failed === 0) toast.success(t.bulkDeleted(pending.ids.length));
     else toast.warning(t.bulkPartial(pending.ids.length - failed, failed));
@@ -93,12 +106,7 @@ export function StudentsListPage() {
           onClearAll={list.clearFilters}
           actions={
             <Can permission="students.export">
-              <ExportButton
-                path="/reports/students.csv"
-                params={{}}
-                fileName={t.exportName}
-                extension="csv"
-              />
+              <ExportButton path="/students/export" params={{}} fileName={t.exportName} />
             </Can>
           }
         />

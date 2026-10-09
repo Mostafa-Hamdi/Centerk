@@ -295,7 +295,9 @@ function Alerts() {
                   <span className="flex min-w-9 items-center justify-center rounded-sm bg-warning-tint px-2 py-1 font-display text-sm font-bold text-warning tabular">
                     {formatNumber(alert.count)}
                   </span>
-                  <span className="flex-1 text-sm text-ink">{t.alerts[alert.type]}</span>
+                  <span className="flex-1 text-sm text-ink">
+                    {(t.alerts as Record<string, string | undefined>)[alert.type] ?? alert.type}
+                  </span>
                   <ChevronLeft
                     className="size-4 text-muted transition-transform group-hover/row:-translate-x-1"
                     aria-hidden

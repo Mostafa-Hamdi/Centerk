@@ -1,5 +1,5 @@
 import { api } from '@/services/api';
-import { normalizePaged } from '@/services/normalize';
+import { normalizePaged, read, readString } from '@/services/normalize';
 import { toQueryParams, type ListParams, type Paged } from '@/services/types';
 import { normalizeStudentDetails, normalizeStudentRow } from './normalize';
 import type {
@@ -59,6 +59,22 @@ const studentsApi = api.injectEndpoints({
       ],
     }),
     /** Archives (Withdrawn) per backend-spec §10.3. Optimistically removes the row from cached pages. */
+    /** POST /students/bulk-delete {ids} → per-id result (spec §10). */
+    bulkDeleteStudents: build.mutation<
+      { id: string; ok: boolean; code: string | null }[],
+      string[]
+    >({
+      query: (ids) => ({ url: '/students/bulk-delete', method: 'POST', body: { ids } }),
+      transformResponse: (raw: unknown) =>
+        Array.isArray(raw)
+          ? (raw as unknown[]).map((item) => ({
+              id: readString(item, 'id') ?? '',
+              ok: read(item, 'ok') === true,
+              code: readString(item, 'code'),
+            }))
+          : [],
+      invalidatesTags: [{ type: 'Student', id: 'LIST' }, 'Dashboard'],
+    }),
     deleteStudent: build.mutation<undefined, string>({
       query: (id) => ({ url: `/students/${encodeURIComponent(id)}`, method: 'DELETE' }),
       async onQueryStarted(id, lifecycle) {
@@ -100,6 +116,7 @@ export const {
   useUpdateStudentMutation,
   useChangeStudentStatusMutation,
   useDeleteStudentMutation,
+  useBulkDeleteStudentsMutation,
 } = studentsApi;
 
 /** Prefetch on hover/intent: `const prefetch = useStudentsPrefetch('getStudent')`. */
