@@ -259,10 +259,7 @@ function AttendanceSection({
   );
 
   return (
-    <section
-      aria-labelledby="attendance-report"
-      className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5"
-    >
+    <section aria-labelledby="attendance-report" className="list-panel">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="attendance-report" className="font-display text-lg font-bold text-ink">
           {t.attendance.title}

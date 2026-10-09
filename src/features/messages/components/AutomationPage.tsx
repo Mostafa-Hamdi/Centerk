@@ -124,7 +124,7 @@ export function AutomationPage() {
           </Can>
         }
       />
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <DataTable
           caption={t.caption}
           data={data?.items}

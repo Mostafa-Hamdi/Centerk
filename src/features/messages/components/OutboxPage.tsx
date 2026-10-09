@@ -75,7 +75,7 @@ export function OutboxPage() {
   return (
     <div className="flex flex-col gap-(--shell-gap)">
       <MessagesHeader />
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <DataTable
           caption={t.log.caption}
           data={data?.items}

@@ -191,7 +191,7 @@ export function QuestionBankPage() {
 
       {addingUnit ? <AddUnitForm onDone={() => setAddingUnit(false)} /> : null}
 
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <div className="flex flex-wrap items-center gap-3">
           <SearchInput
             value={list.params.search ?? ''}

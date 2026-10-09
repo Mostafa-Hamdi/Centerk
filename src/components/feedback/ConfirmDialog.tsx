@@ -101,7 +101,7 @@ export function ConfirmDialog({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-                  className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-lift sm:p-7"
+                  className="flex w-full max-w-md flex-col items-center rounded-xl border border-line bg-surface p-6 text-center shadow-lift sm:p-7"
                 >
                   <span
                     className={cn(
@@ -146,7 +146,7 @@ export function ConfirmDialog({
                   </Dialog.Description>
 
                   {requireReason ? (
-                    <div className="mt-5 flex flex-col gap-2">
+                    <div className="mt-5 flex w-full flex-col gap-2">
                       <label htmlFor={reasonId} className="text-sm font-medium text-ink">
                         {ar.confirm.reason}
                         <span aria-hidden className="ms-1 text-danger">
@@ -175,7 +175,7 @@ export function ConfirmDialog({
                   ) : null}
 
                   {requireTypedName ? (
-                    <div className="mt-5 flex flex-col gap-2">
+                    <div className="mt-5 flex w-full flex-col gap-2">
                       <label htmlFor={typedId} className="text-sm font-medium text-ink">
                         {ar.confirm.typeToConfirm(itemName)}
                       </label>
@@ -190,7 +190,7 @@ export function ConfirmDialog({
                     </div>
                   ) : null}
 
-                  <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <div className="mt-7 flex w-full flex-col-reverse justify-center gap-3 sm:flex-row">
                     <Dialog.Close asChild>
                       <Button variant="neutral" disabled={busy}>
                         {ar.common.cancel}

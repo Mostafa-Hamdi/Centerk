@@ -109,29 +109,37 @@ function DataTableInner<T>({
     },
   });
 
-  if (error) return <ErrorState title={ar.list.loadError} description={error} onRetry={onRetry} />;
+  if (error)
+    return (
+      <div className="table-card">
+        <ErrorState title={ar.list.loadError} description={error} onRetry={onRetry} />
+      </div>
+    );
 
   const rows = table.getRowModel().rows;
   const columnCount = columns.length + (selectable ? 1 : 0);
 
   if (!isLoading && rows.length === 0) {
-    return empty ?? <EmptyState title={ar.list.emptyTitle} />;
+    return <div className="table-card">{empty ?? <EmptyState title={ar.list.emptyTitle} />}</div>;
   }
 
   return (
     <div
-      className={cn('transition-opacity duration-200', isFetching && !isLoading && 'opacity-60')}
+      className={cn(
+        'table-card transition-opacity duration-200',
+        isFetching && !isLoading && 'opacity-60',
+      )}
       aria-busy={isLoading || isFetching}
     >
       {/* Desktop / tablet table */}
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full border-separate border-spacing-y-1 text-sm">
+        <table className="data-table w-full border-separate border-spacing-y-1.5 text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead>
             {table.getHeaderGroups().map((group) => (
               <tr key={group.id}>
                 {selectable ? (
-                  <th scope="col" className="w-12 px-3 pb-2">
+                  <th scope="col" className="w-12 px-3 py-3.5">
                     <input
                       type="checkbox"
                       className={checkboxClass}
@@ -160,7 +168,7 @@ function DataTableInner<T>({
                             : undefined
                       }
                       className={cn(
-                        'px-3 pb-2 text-start text-xs font-semibold whitespace-nowrap text-muted',
+                        'px-3 py-3.5 text-center text-xs font-semibold whitespace-nowrap',
                         header.column.columnDef.meta?.className,
                       )}
                     >
@@ -223,7 +231,7 @@ function DataTableInner<T>({
                       <td
                         key={cell.id}
                         className={cn(
-                          'px-3 py-3 text-ink first:rounded-s-md last:rounded-e-md',
+                          'px-3 py-3 text-center text-ink first:rounded-s-md last:rounded-e-md',
                           !selectable && index === 0 && 'rounded-s-md',
                           cell.column.columnDef.meta?.className,
                         )}

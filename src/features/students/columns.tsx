@@ -92,7 +92,7 @@ export function useStudentColumns(onDelete: (student: StudentListItemDto) => voi
         meta: { label: ar.list.actions, className: 'w-px' },
         cell: ({ row }) => (
           <div
-            className="flex items-center justify-end gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100"
+            className="flex items-center justify-center gap-1"
             aria-label={t.rowActions(row.original.fullName)}
             role="group"
           >

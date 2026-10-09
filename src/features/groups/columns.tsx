@@ -97,7 +97,7 @@ export function useGroupColumns(onTogglePause: (group: GroupListItemDto) => void
             <div
               role="group"
               aria-label={`${ar.list.actions} ${row.original.name}`}
-              className="flex items-center justify-end gap-1 md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100"
+              className="flex items-center justify-center gap-1"
             >
               <Link
                 href={routes.groups.detail(row.original.id)}

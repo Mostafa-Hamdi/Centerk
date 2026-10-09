@@ -1514,6 +1514,8 @@ export const ar = {
   },
   nav: {
     label: 'القائمة الرئيسية',
+    expand: (label: string) => `روابط ${label}`,
+    sub: { newQuiz: 'امتحان حصة جديد' },
     groups: {
       main: 'الرئيسية',
       academic: 'الأكاديمي',
@@ -1562,6 +1564,9 @@ export const ar = {
     plan: (plan: string) => `الباقة: ${plan}`,
   },
   list: {
+    /** «المبلغ (ج.م)» → «اكتب المبلغ» */
+    fieldPlaceholder: (label: string) => `اكتب ${label.replace(/\s*\(.*?\)\s*/g, ' ').trim()}`,
+    pickPlaceholder: (placeholder: string) => placeholder.replace(/^اكتب /, 'اختار '),
     searchPlaceholder: 'ابحث بالاسم أو الكود أو الموبايل…',
     clearSearch: 'مسح البحث',
     total: (count: number) => `${n(count)} نتيجة`,

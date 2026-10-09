@@ -3,6 +3,7 @@
 import { AnimatePresence, m } from 'framer-motion';
 import { CircleAlert } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
+import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 
 export interface FieldControlProps {
@@ -10,6 +11,8 @@ export interface FieldControlProps {
   'aria-invalid': boolean;
   'aria-describedby'?: string;
   'aria-required'?: boolean;
+  /** Derived from the label («اكتب …»); Select / Combobox turn it into «اختار …». Override per field. */
+  placeholder: string;
 }
 
 interface FormFieldProps {
@@ -57,6 +60,7 @@ export function FormField({
         'aria-invalid': Boolean(error),
         'aria-describedby': describedBy || undefined,
         'aria-required': required,
+        placeholder: ar.list.fieldPlaceholder(label),
       })}
       {hint && !error ? (
         <p id={hintId} className="text-xs text-muted">

@@ -85,7 +85,7 @@ export function AuditLogPage() {
         <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
         <p className="mt-1 text-muted">{t.description}</p>
       </header>
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SearchInput
             value={action ?? ''}

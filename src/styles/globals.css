@@ -162,3 +162,269 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ───────────── Scrollbars ───────────── */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--primary) 45%, transparent) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    inline-size: 10px;
+    block-size: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--primary), var(--cyan)) padding-box;
+    opacity: 0.6;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--primary-hover), var(--cyan-deep)) padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/* ───────────── List pages: toolbar card + table card + centered pager ─────────────
+ * A .list-panel holds: [toolbar?] [cards…] <DataTable/> <Pagination/>.
+ * Row 1 is a separate card: the toolbar on the start side, the pager summary
+ * (total + page size) on the end side. The table is its own card; the page
+ * buttons sit centered below it. */
+/* Unlayered on purpose: these must win over Tailwind utilities on the same elements. */
+.list-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.list-panel > *,
+.list-panel > .pager > * {
+  grid-column: 1 / -1;
+}
+
+.list-panel::before {
+  content: '';
+  grid-row: 1;
+  grid-column: 1 / -1;
+  align-self: stretch;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--primary) 6%, transparent), transparent 55%),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.list-panel > :first-child:not(.table-card):not(.pager) {
+  position: relative;
+  grid-row: 1;
+  grid-column: 1;
+  margin: 1rem 1.25rem;
+}
+
+.list-panel > .pager {
+  display: contents;
+}
+
+.list-panel .pager-summary {
+  position: relative;
+  grid-row: 1;
+  grid-column: 2;
+  margin: 1rem 1.25rem;
+}
+
+.list-panel > .table-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  padding: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 639px) {
+  .list-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .list-panel .pager-summary {
+    grid-row: auto;
+    grid-column: 1;
+    justify-self: center;
+    margin-block: 0;
+  }
+}
+
+/* Page size / total chip */
+.pager-total {
+  border-radius: 999px;
+  background: var(--primary-tint);
+  padding: 0.35rem 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.pager-size {
+  transition:
+    border-color 200ms,
+    box-shadow 200ms;
+}
+
+.pager-size:hover,
+.pager-size:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+}
+
+/* Page buttons: floating pill, gradient current page */
+.pager-nav {
+  display: flex;
+  justify-self: center;
+  align-self: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 0.35rem;
+  box-shadow: var(--shadow);
+}
+
+.pager-btn {
+  color: var(--ink);
+  transition:
+    transform 200ms var(--ease-brand, ease),
+    background 200ms,
+    color 200ms,
+    box-shadow 200ms;
+}
+
+.pager-btn:hover {
+  transform: translateY(-2px);
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.pager-btn[aria-current='page'] {
+  background: linear-gradient(135deg, var(--primary), var(--cyan));
+  color: var(--primary-ink);
+  box-shadow: 0 8px 18px -8px var(--primary);
+}
+
+/* ───────────── Data tables ───────────── */
+.data-table thead tr {
+  background: linear-gradient(115deg, var(--primary) 0%, #4f46e5 45%, var(--cyan) 100%);
+  clip-path: inset(0 round 0.85rem);
+}
+
+.data-table thead th {
+  color: #fff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.15);
+}
+
+.data-table thead th button {
+  color: inherit;
+}
+
+.data-table thead th svg {
+  color: inherit !important;
+  opacity: 0.85;
+}
+
+.data-table td > .flex {
+  justify-content: center;
+}
+
+.data-table td > .flex-col {
+  align-items: center;
+}
+
+.data-table td > p,
+.data-table td > span:not(.inline-flex) {
+  margin-inline: auto;
+}
+
+/* Row actions: always visible, tinted per action, glowing gradient on hover */
+.data-table td .btn-ghost {
+  --action: var(--primary);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-block-size: 2.25rem;
+  min-inline-size: 2.25rem;
+  border: 1px solid color-mix(in oklab, var(--action) 28%, transparent);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--action) 9%, var(--surface));
+  color: var(--action);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--action) 18%, transparent);
+}
+
+.data-table td .btn-ghost::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    var(--action),
+    color-mix(in oklab, var(--action) 55%, var(--cyan))
+  );
+  opacity: 0;
+  transform: scale(0.4) rotate(-8deg);
+  transition:
+    opacity 250ms ease,
+    transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.data-table td .btn-ghost:hover {
+  transform: translateY(-2px);
+  border-color: transparent;
+  background: transparent;
+  color: #fff;
+  box-shadow: 0 10px 22px -10px var(--action);
+}
+
+.data-table td .btn-ghost:hover::before {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+
+.data-table td .btn-ghost:hover svg {
+  transform: scale(1.15) rotate(-6deg);
+}
+
+.data-table td .btn-ghost svg {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.data-table td .btn-ghost:is([aria-label^='تعديل'], [aria-label^='عرض']) {
+  --action: var(--cyan-deep);
+}
+
+.data-table td .btn-ghost:is([aria-label^='حذف'], [aria-label^='إلغاء'], [aria-label^='إيقاف']) {
+  --action: var(--danger);
+}
+
+.data-table td .btn-ghost:is([aria-label^='نسخ'], [aria-label^='تفعيل']) {
+  --action: #7c3aed;
+}
+
+.data-table td :is(.btn-success, .btn-primary, .btn-warning, .btn-info) {
+  border-radius: 0.7rem;
+}
+
+.data-table td :is(.btn-success, .btn-primary, .btn-warning):hover {
+  transform: translateY(-2px);
+}

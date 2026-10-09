@@ -160,7 +160,7 @@ export function StaffAttendancePage() {
   return (
     <div className="flex flex-col gap-(--shell-gap)">
       <StaffHeader />
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <div className="w-full max-w-xs">
           <DatePicker
             aria-label={t.date}

@@ -26,9 +26,12 @@ function pageWindow(page: number, total: number): (number | 'gap')[] {
 }
 
 const pageButton =
-  'flex size-11 items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40';
+  'pager-btn flex size-10 items-center justify-center rounded-full text-sm font-semibold disabled:pointer-events-none disabled:opacity-35';
 
-/** Total count, page-size selector and page buttons (RTL: "previous" points right). */
+/**
+ * Total count + page-size selector (`pager-summary`, shown above the table next to the search
+ * inside a `.list-panel`) and the centered page buttons (`pager-nav`, below the table).
+ */
 export function Pagination({
   page,
   totalPages,
@@ -38,15 +41,15 @@ export function Pagination({
   onPageSizeChange,
 }: PaginationProps) {
   return (
-    <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-      <div className="flex items-center gap-3 text-sm text-muted">
-        <span className="tabular">{ar.list.total(totalCount)}</span>
+    <div className="pager">
+      <div className="pager-summary flex items-center gap-3 text-sm text-muted">
+        <span className="pager-total tabular">{ar.list.total(totalCount)}</span>
         <label className="flex items-center gap-2">
           <span>{ar.list.pageSize}</span>
           <select
             value={pageSize}
             onChange={(event) => onPageSizeChange(Number(event.target.value))}
-            className="h-11 rounded-md border border-line bg-surface px-2 text-ink hover:border-primary focus:border-primary focus:outline-none"
+            className="pager-size h-10 cursor-pointer rounded-full border border-line bg-surface px-3 text-ink focus:outline-none"
           >
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
@@ -58,10 +61,10 @@ export function Pagination({
       </div>
 
       {totalPages > 1 ? (
-        <nav aria-label={ar.list.pagination} className="flex items-center gap-1">
+        <nav aria-label={ar.list.pagination} className="pager-nav">
           <button
             type="button"
-            className={cn(pageButton, 'text-muted hover:bg-primary-tint hover:text-primary')}
+            className={pageButton}
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
             aria-label={ar.list.previous}
@@ -80,11 +83,7 @@ export function Pagination({
                 onClick={() => onPageChange(item)}
                 aria-label={ar.list.goToPage(item)}
                 aria-current={item === page ? 'page' : undefined}
-                className={cn(
-                  pageButton,
-                  'tabular',
-                  item === page ? 'bg-primary text-primary-ink' : 'text-ink hover:bg-primary-tint',
-                )}
+                className={cn(pageButton, 'tabular')}
               >
                 {formatNumber(item)}
               </button>
@@ -92,7 +91,7 @@ export function Pagination({
           )}
           <button
             type="button"
-            className={cn(pageButton, 'text-muted hover:bg-primary-tint hover:text-primary')}
+            className={pageButton}
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
             aria-label={ar.list.next}

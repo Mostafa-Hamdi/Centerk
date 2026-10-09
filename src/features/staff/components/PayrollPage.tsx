@@ -170,7 +170,7 @@ export function PayrollPage() {
   return (
     <div className="flex flex-col gap-(--shell-gap)">
       <StaffHeader />
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <label className="flex flex-col gap-1 text-sm font-medium text-ink">
             {t.month}

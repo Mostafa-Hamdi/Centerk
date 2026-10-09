@@ -236,7 +236,7 @@ export function HallBookingsPage() {
         </Card>
       </Can>
 
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <div className="w-full max-w-xs">
           <Select
             aria-label={t.hall}

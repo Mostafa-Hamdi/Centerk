@@ -2,6 +2,7 @@
 
 import * as RadixSelect from '@radix-ui/react-select';
 import { Check, ChevronDown } from 'lucide-react';
+import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 import { inputClasses } from './Input';
 
@@ -43,7 +44,9 @@ export function Select({
           className,
         )}
       >
-        <RadixSelect.Value placeholder={placeholder} />
+        <RadixSelect.Value
+          placeholder={placeholder ? ar.list.pickPlaceholder(placeholder) : undefined}
+        />
         <RadixSelect.Icon>
           <ChevronDown className="size-4 text-muted" aria-hidden />
         </RadixSelect.Icon>

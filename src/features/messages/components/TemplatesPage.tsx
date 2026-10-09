@@ -125,7 +125,7 @@ export function TemplatesPage() {
           </Can>
         }
       />
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <SearchInput
           value={list.params.search ?? ''}
           onSearch={list.setSearch}

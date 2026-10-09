@@ -194,7 +194,7 @@ export function Toaster() {
   return (
     <section
       aria-label={ar.toaster.region}
-      className="pointer-events-none fixed inset-x-4 top-4 z-50 sm:end-auto sm:w-96"
+      className="pointer-events-none fixed inset-x-4 top-[100px] z-50 mx-auto sm:w-96"
     >
       <ol aria-live="polite" className="flex flex-col gap-3">
         <AnimatePresence initial={false}>

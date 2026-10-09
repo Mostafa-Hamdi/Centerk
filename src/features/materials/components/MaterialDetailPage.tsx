@@ -185,7 +185,7 @@ function MovementsSection({ material }: { material: MaterialDto }) {
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+    <section className="list-panel">
       <h2 className="font-display text-lg font-bold text-ink">{t.details.movements}</h2>
       <Can permission="materials.update">
         <Card className="bg-canvas p-4 shadow-none">
@@ -361,7 +361,7 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+    <section className="list-panel">
       <h2 className="font-display text-lg font-bold text-ink">{t.details.deliveries}</h2>
       <Can permission="materials.update">
         <Card className="bg-canvas p-4 shadow-none">

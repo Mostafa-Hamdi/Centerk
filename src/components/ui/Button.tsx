@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn';
  */
 export const buttonVariants = cva(
   [
-    'group/button relative inline-flex min-h-11 items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap select-none',
+    'btn group/button relative inline-flex min-h-11 items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap select-none',
     'transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-brand',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
     'disabled:pointer-events-none disabled:opacity-55 aria-busy:cursor-progress',
@@ -19,14 +19,14 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-primary text-primary-ink hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_12px_28px_-10px_var(--primary)] active:translate-y-0',
+          'btn-primary bg-primary text-primary-ink hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_12px_28px_-10px_var(--primary)] active:translate-y-0',
         success:
-          'bg-success text-primary-ink hover:-translate-y-0.5 hover:bg-success-hover hover:shadow-[0_12px_28px_-10px_var(--success)] active:translate-y-0',
-        danger: 'bg-danger text-primary-ink hover:bg-danger-hover',
-        warning: 'bg-warning text-primary-ink hover:bg-warning-hover',
-        info: 'border border-cyan-deep/40 bg-surface text-cyan-deep hover:border-cyan-deep hover:bg-info-tint',
-        neutral: 'border border-line bg-surface text-ink hover:border-primary',
-        ghost: 'text-muted hover:bg-primary-tint hover:text-ink',
+          'btn-success bg-success text-primary-ink hover:-translate-y-0.5 hover:bg-success-hover hover:shadow-[0_12px_28px_-10px_var(--success)] active:translate-y-0',
+        danger: 'btn-danger bg-danger text-primary-ink hover:bg-danger-hover',
+        warning: 'btn-warning bg-warning text-primary-ink hover:bg-warning-hover',
+        info: 'btn-info border border-cyan-deep/40 bg-surface text-cyan-deep hover:border-cyan-deep hover:bg-info-tint',
+        neutral: 'btn-neutral border border-line bg-surface text-ink hover:border-primary',
+        ghost: 'btn-ghost text-muted hover:bg-primary-tint hover:text-ink',
       },
       size: {
         sm: 'px-3 text-sm',

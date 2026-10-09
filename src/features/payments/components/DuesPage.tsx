@@ -100,7 +100,7 @@ export function DuesPage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-ink">{t.duesPage.title}</h1>
       </header>
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <DataTable
           caption={t.duesPage.title}
           data={data?.items}

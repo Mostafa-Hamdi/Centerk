@@ -82,7 +82,7 @@ export function GroupsListPage() {
         </div>
       </header>
 
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <FilterBar
           search={
             <SearchInput

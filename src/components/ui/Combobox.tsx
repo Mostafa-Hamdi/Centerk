@@ -94,7 +94,9 @@ export function Combobox({
           !current && 'text-muted/70',
         )}
       >
-        <span className="truncate">{current ?? placeholder}</span>
+        <span className="truncate">
+          {current ?? (placeholder ? ar.list.pickPlaceholder(placeholder) : null)}
+        </span>
         <ChevronDown className="size-4 shrink-0 text-muted" aria-hidden />
       </Popover.Trigger>
       <Popover.Portal>

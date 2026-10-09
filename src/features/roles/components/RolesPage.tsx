@@ -151,7 +151,7 @@ export function RolesPage() {
         </section>
       ) : null}
 
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <section className="list-panel">
         <h2 className="font-display text-lg font-bold text-ink">{t.caption}</h2>
         <DataTable
           caption={t.caption}

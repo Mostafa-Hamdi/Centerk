@@ -80,7 +80,7 @@ export function PostponeDialog({ session, onClose }: PostponeDialogProps) {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 animate-rise rounded-xl border border-line bg-surface p-6 shadow-lift"
+          className="fixed inset-x-4 top-1/2 z-50 mx-auto flex max-w-md -translate-y-1/2 animate-rise flex-col items-center rounded-xl border border-line bg-surface p-6 text-center shadow-lift [&_form]:w-full [&_form]:text-start"
         >
           <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-warning-tint text-warning">
             <CalendarClock className="size-6" aria-hidden />
