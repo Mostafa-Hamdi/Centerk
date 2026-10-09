@@ -17,6 +17,7 @@ import { Select } from '@/components/ui/Select';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { formatPhone } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -31,6 +32,7 @@ type Pending = { member: StaffDto; action: 'suspend' | 'delete' };
 /** /staff — team list: search + role filter (URL), suspend / activate, delete. */
 export function StaffListPage() {
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const role = STAFF_ROLES.find((value) => value === list.params.filters.role);
   const { data, isLoading, isFetching, error, refetch } = useGetStaffQuery({
     ...list.params,
@@ -173,6 +175,8 @@ export function StaffListPage() {
           </div>
         </div>
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -195,6 +199,15 @@ export function StaffListPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="staff.delete">
+        <BulkDeleteBar
+          resource="staff"
+          tag="Staff"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={pending !== null}

@@ -1912,6 +1912,8 @@ export const ar = {
   },
   list: {
     rowNumber: '#',
+    selectedItems: (count: number) => `${n(count)} عنصر`,
+    bulkDone: (ok: number, failed: number) => `اتحذف ${n(ok)} وفشل ${n(failed)}`,
     /** «المبلغ (ج.م)» → «اكتب المبلغ» */
     fieldPlaceholder: (label: string) => `اكتب ${label.replace(/\s*\(.*?\)\s*/g, ' ').trim()}`,
     pickPlaceholder: (placeholder: string) => placeholder.replace(/^اكتب /, 'اختار '),

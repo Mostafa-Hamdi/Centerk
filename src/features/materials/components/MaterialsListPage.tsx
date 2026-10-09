@@ -19,6 +19,7 @@ import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGradeLevelsQuery } from '@/features/lookups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -36,6 +37,7 @@ const t = ar.materials;
 export function MaterialsListPage() {
   const router = useRouter();
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const lowStock = list.params.filters.lowStock === 'true';
   const { data, isLoading, isFetching, error, refetch } = useGetMaterialsQuery({
     ...list.params,
@@ -171,6 +173,8 @@ export function MaterialsListPage() {
           </Can>
         </div>
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -194,6 +198,15 @@ export function MaterialsListPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="materials.delete">
+        <BulkDeleteBar
+          resource="materials"
+          tag="Material"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={deleting !== null}

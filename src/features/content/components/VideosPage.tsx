@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/Switch';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGroupsQuery } from '@/features/groups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { formatMoney } from '@/lib/format';
@@ -78,6 +79,7 @@ type VideoValues = z.output<typeof videoSchema>;
 /** /content/videos — videos per group: quick add, hide. */
 export function VideosPage() {
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { data, isLoading, isFetching, error, refetch } = useGetVideosQuery(list.params);
   const groups = useGetGroupsQuery({ page: 1, pageSize: 100, filters: {} });
   const [create] = useCreateVideoMutation();
@@ -269,6 +271,8 @@ export function VideosPage() {
           className="w-full max-w-sm"
         />
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -291,6 +295,15 @@ export function VideosPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="content.delete">
+        <BulkDeleteBar
+          resource="videos"
+          tag="Video"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={hiding !== null}

@@ -27,6 +27,7 @@ import { useGetGradeLevelsQuery } from '@/features/lookups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
 import { CurriculumCard } from '@/features/extras/components/Tools';
 import { QuestionImportCard } from '@/features/extras/components/More';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -50,6 +51,7 @@ const difficultyTone = { Easy: 'success', Medium: 'warning', Hard: 'danger' } as
 export function QuestionBankPage() {
   const router = useRouter();
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { unitId, type, difficulty } = list.params.filters;
   const { data, isLoading, isFetching, error, refetch } = useGetQuestionsQuery({
     ...list.params,
@@ -231,6 +233,8 @@ export function QuestionBankPage() {
           )}
         </div>
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -254,6 +258,15 @@ export function QuestionBankPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="questions.delete">
+        <BulkDeleteBar
+          resource="questions"
+          tag="Question"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={deleting !== null}
