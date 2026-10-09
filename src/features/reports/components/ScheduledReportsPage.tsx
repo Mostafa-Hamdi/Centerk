@@ -21,6 +21,7 @@ import { Switch } from '@/components/ui/Switch';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetStaffQuery } from '@/features/staff/api';
+import { ReportRunsActions } from '@/features/extras/components/Tools';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { formatDateTime } from '@/lib/format';
@@ -136,15 +137,18 @@ export function ScheduledReportsPage() {
         id: 'actions',
         header: '',
         cell: ({ row }) => (
-          <Can permission="reports.schedule">
-            <Button
-              size="sm"
-              variant="ghost"
-              aria-label={`${ar.common.delete} ${row.original.name}`}
-              iconStart={<Trash2 aria-hidden />}
-              onClick={() => setDeleting(row.original)}
-            />
-          </Can>
+          <span className="flex items-center justify-center gap-1">
+            <ReportRunsActions reportId={row.original.id} />
+            <Can permission="reports.schedule">
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label={`${ar.common.delete} ${row.original.name}`}
+                iconStart={<Trash2 aria-hidden />}
+                onClick={() => setDeleting(row.original)}
+              />
+            </Can>
+          </span>
         ),
       },
     ];

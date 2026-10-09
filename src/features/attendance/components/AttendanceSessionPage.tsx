@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { ReopenSessionButton } from '@/features/extras/components/ReopenSessionButton';
+import { RecordCorrection } from '@/features/extras/components/Tools';
 import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 import { formatMoney, formatNumber, formatTime } from '@/lib/format';
@@ -333,6 +334,7 @@ export function AttendanceSessionPage({ sessionId }: { sessionId: string }) {
                   <Badge tone={statusTone[record.status]} dot>
                     {t.mark[record.status]}
                   </Badge>
+                  <RecordCorrection recordId={record.id} name={record.studentName} />
                 </li>
               ))}
             </ul>

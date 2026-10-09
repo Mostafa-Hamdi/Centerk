@@ -27,6 +27,7 @@ import {
   type GradeLevel,
 } from '../api';
 import { QuizAnalyticsCard } from '@/features/extras/components/Cards';
+import { MakeupsCard } from '@/features/extras/components/Tools';
 
 const t = ar.quizzes;
 
@@ -273,6 +274,11 @@ export function QuizGradesPage({ id }: { id: string }) {
             throw caught;
           }
         }}
+      />
+      <MakeupsCard
+        quizId={id}
+        maxScore={max}
+        students={parsed.map((row) => ({ id: row.studentId, name: row.studentName }))}
       />
       <QuizAnalyticsCard quizId={id} />
     </div>

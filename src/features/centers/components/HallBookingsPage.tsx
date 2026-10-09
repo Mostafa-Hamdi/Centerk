@@ -21,6 +21,7 @@ import { Can } from '@/features/auth/components/Can';
 import { useGetHallsQuery } from '@/features/groups/api';
 import { useGetStaffQuery } from '@/features/staff/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { ClashesCard } from '@/features/extras/components/Tools';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { formatDateTime } from '@/lib/format';
@@ -271,6 +272,8 @@ export function HallBookingsPage() {
           />
         ) : null}
       </section>
+
+      <ClashesCard />
 
       <ConfirmDialog
         open={cancelling !== null}

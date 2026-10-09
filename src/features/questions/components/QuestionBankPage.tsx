@@ -25,6 +25,7 @@ import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGradeLevelsQuery } from '@/features/lookups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { CurriculumCard } from '@/features/extras/components/Tools';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -190,7 +191,12 @@ export function QuestionBankPage() {
 
       <QuestionsTabs />
 
-      {addingUnit ? <AddUnitForm onDone={() => setAddingUnit(false)} /> : null}
+      {addingUnit ? (
+        <>
+          <AddUnitForm onDone={() => setAddingUnit(false)} />
+          <CurriculumCard />
+        </>
+      ) : null}
 
       <section className="list-panel">
         <div className="flex flex-wrap items-center gap-3">

@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { ExpenseCategoriesCard } from '@/features/extras/components/Tools';
 import { ar } from '@/i18n/ar';
 import { formatDate, formatMoney } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -198,6 +199,8 @@ export function ExpensesPage() {
           />
         ) : null}
       </section>
+
+      <ExpenseCategoriesCard />
 
       <ConfirmDialog
         open={rejecting !== null}
