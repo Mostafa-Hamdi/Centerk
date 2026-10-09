@@ -8,8 +8,7 @@ import {
 } from '@/features/auth/constants';
 import type { ClientSession } from '@/features/auth/types';
 import { ar } from '@/i18n/ar';
-import { env, usesMockApi, withApiVersion } from '@/lib/env';
-import { handleMockRequest } from '@/mocks/handlers';
+import { env, withApiVersion } from '@/lib/env';
 
 /** Server-side backend base; API_URL_INTERNAL lets the server use a private network address. */
 const backendBase = () => withApiVersion(process.env.API_URL_INTERNAL ?? env.NEXT_PUBLIC_API_URL);
@@ -63,8 +62,6 @@ export async function callBackend(
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
   };
   const init = { method: 'POST', headers, body: JSON.stringify(body) };
-  // Demo mode: call the mock in-process (no self-request through Vercel deployment protection).
-  if (usesMockApi) return handleMockRequest('POST', path, new Request(`http://mock${path}`, init));
   try {
     return await fetch(`${backendBase()}${path}`, { ...init, cache: 'no-store' });
   } catch {

@@ -277,3 +277,22 @@ interface Paged<T> {
 ---
 
 Questions → frontend team. Mock contracts live in `src/mocks/` and the gap tracker in `docs/api-gaps.md`.
+
+---
+
+## Remaining after the backend update (2026-10-09)
+
+Automated diff of `backend-spec.md` §10 against the live Swagger (402 operations): **19 spec endpoints still missing**.
+
+| Module         | Missing                                                                                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Groups / halls | `DELETE /groups/{id}/waitlist` (live has `/waitlist/{entryId}` — fine), `PATCH /halls/{id}/status`                                                          |
+| Finance        | `POST /payments/online/intent`, `POST /webhooks/paymob`                                                                                                     |
+| Messages       | `POST /webhooks/whatsapp`                                                                                                                                   |
+| Content        | `POST /videos/{id}/publish`, `GET /videos/{id}/stats`, `GET /portal/videos`, `POST /portal/videos/{id}/play`, `POST /portal/videos/views/{viewId}/progress` |
+| Portal         | `POST /portal/students/{id}/pay`                                                                                                                            |
+| Staff          | `POST /staff/{id}/reset-password`, `POST /payrolls/generate?month=`                                                                                         |
+| Roles          | `POST /roles/{id}/reset`                                                                                                                                    |
+| Billing        | `GET /billing/subscription`, `GET /billing/invoices`, `GET /billing/invoices/{id}.pdf`, `POST /billing/invoices/{id}/pay`, `POST /billing/change-plan`      |
+
+Not blocking the current frontend phases (online payments, video, billing come later).

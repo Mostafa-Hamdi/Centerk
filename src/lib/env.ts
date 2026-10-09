@@ -1,23 +1,15 @@
 import { z } from 'zod';
 
-/** Built-in mock backend (src/mocks), served by this app at /api/mock. */
-export const MOCK_API_BASE = '/api/mock';
-
-/** True when the configured API is the built-in mock (no real backend URL set = demo mode). */
-export function isMockApiUrl(url: string | undefined): boolean {
-  return !url || url === MOCK_API_BASE || url.replace(/\/$/, '').endsWith(MOCK_API_BASE);
-}
+/** Default backend (TeacherCenters API). Override with NEXT_PUBLIC_API_URL when the domain changes. */
+export const DEFAULT_API_URL = 'https://teachercenter.runasp.net/api/v1';
 
 // Vercel exposes the production domain to the build; fall back to it so deploys need no config.
 const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
 const defaultAppUrl = vercelUrl ? `https://${vercelUrl}` : 'http://localhost:3000';
 
 const envSchema = z.object({
-  /**
-   * Backend base URL including the version prefix, e.g. https://api.example.com/api/v1.
-   * Unset → demo mode against the mock backend.
-   */
-  NEXT_PUBLIC_API_URL: z.union([z.url(), z.literal(MOCK_API_BASE)]).default(MOCK_API_BASE),
+  /** Backend base URL, e.g. https://api.example.com/api/v1 (a bare domain gets /api/v1 appended). */
+  NEXT_PUBLIC_API_URL: z.url().default(DEFAULT_API_URL),
   NEXT_PUBLIC_APP_URL: z.url().default(defaultAppUrl),
 });
 
@@ -36,8 +28,9 @@ const parsedEnv = envSchema.parse({
  */
 export function withApiVersion(url: string): string {
   const trimmed = url.replace(/\/+$/, '');
-  if (!/^https?:\/\//.test(trimmed) || /\/api(\/|$)/.test(new URL(trimmed).pathname))
+  if (!/^https?:\/\//.test(trimmed) || /\/api(\/|$)/.test(new URL(trimmed).pathname)) {
     return trimmed;
+  }
   return `${trimmed}/api/v1`;
 }
 
@@ -45,5 +38,3 @@ export const env = {
   ...parsedEnv,
   NEXT_PUBLIC_API_URL: withApiVersion(parsedEnv.NEXT_PUBLIC_API_URL),
 };
-
-export const usesMockApi = isMockApiUrl(env.NEXT_PUBLIC_API_URL);

@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { mockAccounts } from '../src/mocks/fixtures';
 
-// Requires the mock backend (.env.local: API_MOCK=true, NEXT_PUBLIC_API_URL=…/api/mock).
-// Phase 4 extends this with: create student → edit → delete.
+// Runs against the real backend. Provide a test account via env (never commit credentials):
+// E2E_TENANT, E2E_PHONE, E2E_PASSWORD.
+const account = {
+  tenant: process.env.E2E_TENANT,
+  phone: process.env.E2E_PHONE,
+  password: process.env.E2E_PASSWORD,
+};
 
 test('signed-out visitors are sent to an Arabic RTL login page', async ({ page }) => {
   await page.goto('/dashboard');
@@ -12,16 +16,18 @@ test('signed-out visitors are sent to an Arabic RTL login page', async ({ page }
 });
 
 test('staff login validates, then signs in and out', async ({ page }) => {
+  test.skip(!account.tenant || !account.phone || !account.password, 'E2E_* credentials not set');
   await page.goto('/login');
   await page.getByRole('button', { name: 'دخول' }).click();
   await expect(page.getByRole('alert').first()).toBeVisible();
 
-  await page.getByLabel('كود السنتر').fill(mockAccounts.tenantSlug);
-  await page.getByLabel('رقم الموبايل').fill(mockAccounts.staff.phone);
-  await page.getByLabel('كلمة السر', { exact: true }).fill(mockAccounts.staff.password);
+  await page.getByLabel('كود السنتر').fill(account.tenant ?? '');
+  await page.getByLabel('رقم الموبايل').fill(account.phone ?? '');
+  await page.getByLabel('كلمة السر', { exact: true }).fill(account.password ?? '');
   await page.getByRole('button', { name: 'دخول' }).click();
 
   await expect(page).toHaveURL(/\/dashboard/);
-  await page.getByRole('button', { name: 'تسجيل الخروج' }).click();
+  await page.getByRole('button', { name: 'حسابي' }).click();
+  await page.getByRole('menuitem', { name: 'تسجيل الخروج' }).click();
   await expect(page).toHaveURL(/\/login/);
 });

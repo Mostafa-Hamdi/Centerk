@@ -110,25 +110,11 @@ docs/             api-gaps.md
 - `src/middleware.ts` gates routes on the refresh cookie; `AuthGate` restores the session after reloads and loads `/me`.
 - Permissions: `usePermission('students.create')` and `<Can permission="…">` (owner = allow all).
 
-## Mock backend (local review without the .NET API)
-
-Set in `.env.local`:
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3000/api/mock
-API_MOCK=true
-```
-
-Demo logins are listed in `src/mocks/fixtures.ts`. The mock route returns 404 unless `API_MOCK=true`.
-
 ## Troubleshooting
 
 **`EINVAL: invalid argument, readlink '...\.next\...'` on `npm run dev` / `build`** — OneDrive turned files in
 `.next` into online-only placeholders. Run `npm run dev:clean` (deletes `.next`, then starts dev). Permanent fix:
 move the project outside OneDrive, or right-click the project folder → **Always keep on this device**.
-
-**Switching between the real backend and the mock** — edit `.env.local` (see `.env.example`) and restart the dev
-server. A session from the other backend is cleared automatically (you are sent back to `/login`).
 
 **Guardian / student login shows "خدمة إرسال رمز التحقق غير مفعّلة حاليًا"** — the backend has no OTP provider
 configured (`503 otp-provider-unavailable`); it needs a provider or `Otp:DemoEnabled=true` on the server.
