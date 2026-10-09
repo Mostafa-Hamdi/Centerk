@@ -307,6 +307,17 @@ export const ar = {
     save: 'حفظ الدور',
     saved: 'اتحفظ دور الموظف',
   },
+  documents: {
+    receiptPdf: 'تحميل الإيصال PDF',
+    cardPdf: 'كارت الطالب PDF',
+    sendGuardian: 'ابعت لولي الأمر',
+    sendStudent: 'ابعت للطالب',
+    sent: 'اتبعت على الواتساب',
+    rotate: 'تغيير الـ QR',
+    rotated: 'اتغير الـ QR — الكارت القديم مبقاش شغال',
+    resend: 'إعادة الإرسال',
+    resent: 'الرسالة رجعت للطابور',
+  },
   guardians: {
     title: 'أولياء الأمور',
     description: 'بيانات أولياء الأمور المربوطين بالطلاب',

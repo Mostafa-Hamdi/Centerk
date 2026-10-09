@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatCard } from '@/components/ui/StatCard';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { DocumentActions } from '@/features/account/components/DocumentActions';
 import { ar } from '@/i18n/ar';
 import { formatMoney, formatNumber, formatPercent, formatPhone } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -92,6 +93,13 @@ export function StudentDetailsPage({ id }: { id: string }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <DocumentActions
+            pdfPath={`/students/${encodeURIComponent(id)}/card.pdf`}
+            fileName={`card-${student.code}`}
+            pdfLabel={ar.documents.cardPdf}
+            sendPath={`/students/${encodeURIComponent(id)}/card/send`}
+            rotateStudentId={id}
+          />
           <Can permission="students.update">
             <Link
               href={routes.students.edit(id)}

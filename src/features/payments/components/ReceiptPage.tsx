@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { DocumentActions } from '@/features/account/components/DocumentActions';
 import { ar } from '@/i18n/ar';
 import { formatDateTime, formatMoney } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -58,6 +59,12 @@ export function ReceiptPage({ id }: { id: string }) {
           <Button variant="info" iconStart={<Printer aria-hidden />} onClick={() => window.print()}>
             {t.receipt.print}
           </Button>
+          <DocumentActions
+            pdfPath={`/payments/${encodeURIComponent(id)}/receipt.pdf`}
+            fileName={`receipt-${payment.receiptNumber}`}
+            pdfLabel={ar.documents.receiptPdf}
+            sendPath={`/payments/${encodeURIComponent(id)}/receipt/send`}
+          />
           {payment.status === 'Active' ? (
             <Can permission="payments.void">
               <Button

@@ -16,7 +16,7 @@ interface ExportButtonProps {
   params: Record<string, string | number>;
   fileName: string;
   /** "csv" for endpoints that already return CSV (e.g. /reports/students.csv). */
-  extension?: 'xlsx' | 'csv';
+  extension?: 'xlsx' | 'csv' | 'pdf';
   label?: string;
 }
 
