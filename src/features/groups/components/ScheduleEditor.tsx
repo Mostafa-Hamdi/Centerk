@@ -17,15 +17,13 @@ export const slotError = (slot: WeeklySlotDto) =>
   slot.durationMinutes < 15 ||
   slot.durationMinutes > 600;
 
-/** Weekly schedule rows: day, start time, duration, optional hall (defaults to the group's hall). */
+/** Weekly schedule rows: day, start time, duration. Every slot uses the group's hall. */
 export function ScheduleEditor({
   slots,
   onChange,
-  halls,
 }: {
   slots: WeeklySlotDto[];
   onChange: (slots: WeeklySlotDto[]) => void;
-  halls: { value: string; label: string }[];
 }) {
   const update = (index: number, patch: Partial<WeeklySlotDto>) =>
     onChange(slots.map((slot, i) => (i === index ? { ...slot, ...patch } : slot)));
@@ -37,7 +35,7 @@ export function ScheduleEditor({
           {slots.map((slot, index) => (
             <li
               key={index}
-              className="grid items-end gap-2 rounded-md border border-line bg-canvas p-3 sm:grid-cols-[1fr_8rem_8rem_1fr_auto]"
+              className="grid items-end gap-2 rounded-md border border-line bg-canvas p-3 sm:grid-cols-[1fr_9rem_9rem_auto]"
             >
               <label className="flex flex-col gap-1 text-sm font-medium text-ink">
                 {t.schedule.day}
@@ -69,16 +67,6 @@ export function ScheduleEditor({
                   onChange={(event) =>
                     update(index, { durationMinutes: Number(event.target.value) || 0 })
                   }
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-sm font-medium text-ink">
-                {t.schedule.hall}
-                <Select
-                  value={slot.hallId ?? 'group'}
-                  onValueChange={(value) =>
-                    update(index, { hallId: value === 'group' ? null : value })
-                  }
-                  options={[{ value: 'group', label: t.schedule.groupHall }, ...halls]}
                 />
               </label>
               <Button

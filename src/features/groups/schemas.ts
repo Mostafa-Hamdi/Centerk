@@ -10,7 +10,7 @@ const optionalId = z
 
 /**
  * Group add/edit form — mirrors Swagger NewGroup / UpdateGroupRequest:
- * name ≤150 (required), subject ≤100, grade ≤60, capacity int ≥1, price ≥0, optional teacher/hall.
+ * name ≤150 (required), subject ≤100, grade ≤60, capacity int ≥1, price ≥0, teacher (required), optional hall.
  */
 export const groupFormSchema = z.object({
   name: z.string().trim().min(1, v.required).max(150, v.tooLong(150)),
@@ -35,7 +35,8 @@ export const groupFormSchema = z.object({
     .transform(Number)
     .pipe(z.number({ error: v.number }).min(0, v.minValue(0)).max(100_000, v.maxValue(100_000))),
   hallId: optionalId,
-  teacherId: optionalId,
+  /** Required by the backend validator (POST /groups). */
+  teacherId: z.string().trim().min(1, v.required),
 });
 
 export type GroupFormInput = z.input<typeof groupFormSchema>;

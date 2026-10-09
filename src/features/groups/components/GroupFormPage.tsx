@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
+import { useGetTeachersQuery } from '@/features/centers/teachersApi';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -54,6 +55,7 @@ export function GroupFormPage({ id }: { id?: string }) {
   const branchId = useAppSelector(selectCurrentBranchId);
   const group = useGetGroupQuery(id ?? '', { skip: !id });
   const halls = useGetHallsQuery(branchId ?? undefined);
+  const teachers = useGetTeachersQuery({ page: 1, pageSize: 200 });
   const [createGroup] = useCreateGroupMutation();
   const [updateGroup] = useUpdateGroupMutation();
   const schedule = useGetGroupScheduleQuery(id ?? '', { skip: !id });
@@ -112,7 +114,7 @@ export function GroupFormPage({ id }: { id?: string }) {
     // "Group hall" rows are sent with the group's hall.
     const weekly = slots.map((slot) => ({
       ...slot,
-      hallId: slot.hallId ?? (values.hallId || null),
+      hallId: values.hallId ?? null,
     }));
     try {
       if (id) {
@@ -163,6 +165,9 @@ export function GroupFormPage({ id }: { id?: string }) {
     }
   };
 
+  const teacherOptions = (teachers.data?.items ?? [])
+    .filter((teacher) => teacher.isActive || teacher.id === group.data?.teacherId)
+    .map((teacher) => ({ value: teacher.id, label: teacher.fullName }));
   const hallOptions = (halls.data ?? []).map((hall) => ({
     value: hall.id,
     label: hall.capacity ? `${hall.name} (${hall.capacity})` : hall.name,
@@ -232,6 +237,23 @@ export function GroupFormPage({ id }: { id?: string }) {
             />
           )}
         </FormField>
+        <FormField label={t.form.teacher} error={errors.teacherId?.message} required>
+          {(control) => (
+            <Controller
+              control={form.control}
+              name="teacherId"
+              render={({ field }) => (
+                <Select
+                  {...control}
+                  value={field.value || undefined}
+                  onValueChange={field.onChange}
+                  options={teacherOptions}
+                  placeholder={t.form.teacherPlaceholder}
+                />
+              )}
+            />
+          )}
+        </FormField>
         <FormField label={t.form.price} error={errors.price?.message} required>
           {(control) => (
             <Input
@@ -283,7 +305,6 @@ export function GroupFormPage({ id }: { id?: string }) {
       <FormSection title={t.schedule.section} description={t.schedule.sectionDesc}>
         <ScheduleEditor
           slots={slots}
-          halls={hallOptions}
           onChange={(next) => {
             setSlots(next);
             setSlotsDirty(true);
