@@ -21,6 +21,7 @@ import {
   useGetPortalOverviewQuery,
   useGetPortalSessionsQuery,
 } from '../api';
+import { PortalExcusesCard } from './PortalExcusesCard';
 
 const t = ar.portal;
 const attendanceTone = { Present: 'success', Late: 'warning', Absent: 'danger' } as const;
@@ -188,6 +189,8 @@ function StudentPanel({ studentId, showCard }: { studentId: string; showCard: bo
               <p className="text-xs text-muted">{t.cardHint}</p>
             </Card>
           ) : null}
+
+          <PortalExcusesCard studentId={studentId} />
 
           <Card className="flex flex-col gap-3 p-5">
             <h2 className="font-display text-lg font-bold text-ink">{t.balance}</h2>

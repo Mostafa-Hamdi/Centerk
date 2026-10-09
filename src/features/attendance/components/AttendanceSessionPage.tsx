@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { ReopenSessionButton } from '@/features/extras/components/ReopenSessionButton';
 import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 import { formatMoney, formatNumber, formatTime } from '@/lib/format';
@@ -157,9 +158,14 @@ export function AttendanceSessionPage({ sessionId }: { sessionId: string }) {
             <p className="mt-1 text-sm text-muted">
               {data.startsAt ? formatTime(data.startsAt) : null}
               {data.closed ? (
-                <Badge tone="neutral" className="ms-2">
-                  <Lock aria-hidden /> {t.sessionClosed}
-                </Badge>
+                <>
+                  <Badge tone="neutral" className="ms-2">
+                    <Lock aria-hidden /> {t.sessionClosed}
+                  </Badge>
+                  <span className="ms-2 inline-block">
+                    <ReopenSessionButton sessionId={sessionId} label={data.groupName || t.title} />
+                  </span>
+                </>
               ) : null}
             </p>
           </div>
