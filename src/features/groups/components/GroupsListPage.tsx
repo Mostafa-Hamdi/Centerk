@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { DataTable } from '@/components/data/DataTable';
+import { ExportButton } from '@/components/data/ExportButton';
 import { FilterBar } from '@/components/data/FilterBar';
 import { Pagination } from '@/components/data/Pagination';
 import { SearchInput } from '@/components/data/SearchInput';
@@ -84,6 +85,11 @@ export function GroupsListPage() {
 
       <section className="list-panel">
         <FilterBar
+          actions={
+            <Can permission="groups.export">
+              <ExportButton path="/groups/export" params={{}} fileName="groups" />
+            </Can>
+          }
           search={
             <SearchInput
               value={list.params.search ?? ''}
