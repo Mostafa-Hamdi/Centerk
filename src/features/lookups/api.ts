@@ -25,6 +25,7 @@ const lookupsApi = api.injectEndpoints({
               .sort((a, b) => a.order - b.order)
               .map((grade) => ({ id: grade.id, name: grade.name, stage: grade.stage }))
           : [],
+      providesTags: [{ type: 'Settings', id: 'GRADES' }],
       keepUnusedDataFor: 60 * 60,
     }),
   }),

@@ -32,18 +32,16 @@ import {
   type BranchDto,
   type SubjectDto,
 } from '../api';
+import { SettingsHeader } from './SettingsHeader';
 
 const t = ar.settings;
 const v = ar.validation;
 
-/** /settings — branches and subjects (quick add, open/close, delete). */
-export function SettingsPage() {
+/** /settings/branches — branches and subjects (quick add, open/close, delete). */
+export function BranchesSettingsPage() {
   return (
     <div className="flex flex-col gap-(--shell-gap)">
-      <header>
-        <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
-        <p className="mt-1 text-muted">{t.description}</p>
-      </header>
+      <SettingsHeader />
       <div className="grid items-start gap-(--shell-gap) xl:grid-cols-2">
         <BranchesCard />
         <SubjectsCard />
