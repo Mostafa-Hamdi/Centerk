@@ -176,6 +176,7 @@ export function ExpensesPage() {
           />
         </div>
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * 20}
           caption={t.caption}
           data={data?.items}
           columns={columns}

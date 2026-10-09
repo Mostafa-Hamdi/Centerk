@@ -269,6 +269,7 @@ export function VideosPage() {
           className="w-full max-w-sm"
         />
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
           columns={columns}

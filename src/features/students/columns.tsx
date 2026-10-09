@@ -3,6 +3,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/Button';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { routes } from '@/config/routes';
@@ -20,8 +21,7 @@ const statusTone: Record<StudentStatus, 'success' | 'warning' | 'neutral' | 'inf
   Graduated: 'info',
 };
 
-const iconAction =
-  'flex size-9 items-center justify-center rounded-sm text-muted transition-colors hover:bg-surface hover:text-primary';
+const iconAction = buttonVariants({ variant: 'ghost', size: 'sm' });
 
 /** Memoized column definitions for the students table. */
 export function useStudentColumns(onDelete: (student: StudentListItemDto) => void) {

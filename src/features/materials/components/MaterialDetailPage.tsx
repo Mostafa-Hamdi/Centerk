@@ -243,6 +243,7 @@ function MovementsSection({ material }: { material: MaterialDto }) {
         </Card>
       </Can>
       <DataTable
+        startIndex={((data?.page ?? 1) - 1) * PAGE_SIZE}
         caption={t.details.movements}
         data={data?.items}
         columns={columns}
@@ -441,6 +442,7 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
         </Card>
       </Can>
       <DataTable
+        startIndex={((data?.page ?? 1) - 1) * PAGE_SIZE}
         caption={t.details.deliveries}
         data={data?.items}
         columns={columns}

@@ -3,6 +3,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Eye, Pause, Pencil, Play } from 'lucide-react';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/Button';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { routes } from '@/config/routes';
@@ -20,8 +21,7 @@ const statusTone: Record<GroupStatus, 'success' | 'warning' | 'neutral'> = {
   Closed: 'neutral',
 };
 
-const iconAction =
-  'flex size-9 items-center justify-center rounded-sm text-muted transition-colors hover:bg-surface hover:text-primary';
+const iconAction = buttonVariants({ variant: 'ghost', size: 'sm' });
 
 /** Memoized columns for the groups table. */
 export function useGroupColumns(onTogglePause: (group: GroupListItemDto) => void) {

@@ -305,6 +305,7 @@ export function CoursesPage() {
 
       <section className="list-panel">
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
           columns={columns}

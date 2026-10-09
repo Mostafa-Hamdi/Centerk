@@ -176,6 +176,7 @@ export function OnlineExamDetailPage({ id }: { id: string }) {
       <section className="list-panel">
         <h2 className="font-display text-lg font-bold text-ink">{t.results}</h2>
         <DataTable
+          startIndex={((results.data?.page ?? 1) - 1) * PAGE_SIZE}
           caption={t.results}
           data={results.data?.items}
           columns={columns}

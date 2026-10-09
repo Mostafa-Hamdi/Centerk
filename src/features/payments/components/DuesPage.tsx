@@ -102,6 +102,7 @@ export function DuesPage() {
       </header>
       <section className="list-panel">
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.duesPage.title}
           data={data?.items}
           columns={columns}

@@ -356,6 +356,7 @@ function ShiftsHistory() {
     <section className="list-panel">
       <h2 className="font-display text-lg font-bold text-ink">{t.history}</h2>
       <DataTable
+        startIndex={((data?.page ?? 1) - 1) * 10}
         caption={t.history}
         data={data?.items}
         columns={columns}

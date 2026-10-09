@@ -1564,6 +1564,7 @@ export const ar = {
     plan: (plan: string) => `الباقة: ${plan}`,
   },
   list: {
+    rowNumber: '#',
     /** «المبلغ (ج.م)» → «اكتب المبلغ» */
     fieldPlaceholder: (label: string) => `اكتب ${label.replace(/\s*\(.*?\)\s*/g, ' ').trim()}`,
     pickPlaceholder: (placeholder: string) => placeholder.replace(/^اكتب /, 'اختار '),
@@ -1617,6 +1618,8 @@ export const ar = {
   notFound: {
     title: 'الصفحة مش موجودة',
     desc: 'ممكن يكون الرابط غلط أو الصفحة اتنقلت.',
+    eyebrow: 'تُهت شوية؟',
+    back: 'ارجع للصفحة اللي فاتت',
   },
   errorPage: {
     title: 'حصل خطأ',

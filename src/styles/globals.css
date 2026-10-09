@@ -356,75 +356,427 @@
   margin-inline: auto;
 }
 
-/* Row actions: always visible, tinted per action, glowing gradient on hover */
-.data-table td .btn-ghost {
+/* Row actions: always visible; the color follows the action's icon (delete = red, edit = amber,
+ * view = sky, duplicate = violet, stop/cancel = orange, approve/send/pay = green). Hover: gradient
+ * fill blooms from the center, a light sweep crosses the button, it lifts with a colored glow. */
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger, .btn-info) {
   --action: var(--primary);
+  --action-2: color-mix(in oklab, var(--action) 60%, #7c3aed);
   position: relative;
   isolation: isolate;
   overflow: hidden;
   min-block-size: 2.25rem;
   min-inline-size: 2.25rem;
-  border: 1px solid color-mix(in oklab, var(--action) 28%, transparent);
-  border-radius: 0.7rem;
-  background: color-mix(in oklab, var(--action) 9%, var(--surface));
-  color: var(--action);
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--action) 18%, transparent);
+  border-radius: 0.75rem;
+  transition:
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 300ms ease,
+    color 200ms ease,
+    background 200ms ease,
+    border-color 200ms ease;
 }
 
+.data-table td .btn-ghost {
+  border: 1px solid color-mix(in oklab, var(--action) 30%, transparent);
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--action) 14%, var(--surface)),
+    color-mix(in oklab, var(--action) 5%, var(--surface))
+  );
+  color: var(--action);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    0 2px 6px -3px color-mix(in oklab, var(--action) 45%, transparent);
+}
+
+.data-table td :is(.btn-success, .btn-primary, .btn-warning, .btn-danger) {
+  background: linear-gradient(135deg, var(--action), var(--action-2));
+  color: #fff;
+  box-shadow: 0 4px 12px -6px var(--action);
+}
+
+.data-table td .btn-success {
+  --action: var(--success);
+  --action-2: color-mix(in oklab, var(--success) 70%, var(--cyan));
+}
+
+.data-table td .btn-warning {
+  --action: var(--warning);
+}
+
+.data-table td .btn-danger {
+  --action: var(--danger);
+}
+
+/* gradient bloom */
 .data-table td .btn-ghost::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(
-    135deg,
-    var(--action),
-    color-mix(in oklab, var(--action) 55%, var(--cyan))
-  );
+  border-radius: inherit;
+  background: radial-gradient(circle at center, var(--action), var(--action-2));
   opacity: 0;
-  transform: scale(0.4) rotate(-8deg);
+  transform: scale(0.2);
   transition:
-    opacity 250ms ease,
-    transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity 260ms ease,
+    transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.data-table td .btn-ghost:hover {
-  transform: translateY(-2px);
+/* light sweep */
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger)::after {
+  content: '';
+  position: absolute;
+  inset-block: -20%;
+  inset-inline-start: -60%;
+  inline-size: 45%;
+  z-index: 0;
+  background: linear-gradient(105deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  transform: skewX(-20deg) translateX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):hover {
+  transform: translateY(-3px) scale(1.06);
   border-color: transparent;
-  background: transparent;
   color: #fff;
-  box-shadow: 0 10px 22px -10px var(--action);
+  box-shadow:
+    0 12px 24px -10px var(--action),
+    0 0 0 4px color-mix(in oklab, var(--action) 16%, transparent);
 }
 
 .data-table td .btn-ghost:hover::before {
   opacity: 1;
-  transform: scale(1) rotate(0);
+  transform: scale(1.4);
 }
 
-.data-table td .btn-ghost:hover svg {
-  transform: scale(1.15) rotate(-6deg);
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):hover::after {
+  animation: action-sweep 650ms ease forwards;
 }
 
-.data-table td .btn-ghost svg {
-  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):active {
+  transform: translateY(-1px) scale(0.97);
 }
 
-.data-table td .btn-ghost:is([aria-label^='تعديل'], [aria-label^='عرض']) {
-  --action: var(--cyan-deep);
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger) svg {
+  position: relative;
+  z-index: 1;
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.data-table td .btn-ghost:is([aria-label^='حذف'], [aria-label^='إلغاء'], [aria-label^='إيقاف']) {
-  --action: var(--danger);
+.data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):hover svg {
+  transform: rotate(-10deg) scale(1.18);
 }
 
-.data-table td .btn-ghost:is([aria-label^='نسخ'], [aria-label^='تفعيل']) {
+@keyframes action-sweep {
+  0% {
+    opacity: 0;
+    transform: skewX(-20deg) translateX(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: skewX(-20deg) translateX(420%);
+  }
+}
+
+/* meaning by icon */
+.data-table
+  td
+  :is(.btn-ghost, .btn-danger):has(:is(.lucide-trash-2, .lucide-trash, .lucide-archive)) {
+  --action: #e11d48;
+  --action-2: #f97316;
+}
+
+.data-table
+  td
+  .btn-ghost:has(:is(.lucide-pencil, .lucide-pen-line, .lucide-square-pen, .lucide-pen)) {
+  --action: #d97706;
+  --action-2: #f59e0b;
+}
+
+.data-table td .btn-ghost:has(:is(.lucide-eye, .lucide-file-search, .lucide-printer)) {
+  --action: #0284c7;
+  --action-2: #06b6d4;
+}
+
+.data-table td .btn-ghost:has(.lucide-copy) {
   --action: #7c3aed;
+  --action-2: #c026d3;
 }
 
-.data-table td :is(.btn-success, .btn-primary, .btn-warning, .btn-info) {
-  border-radius: 0.7rem;
+.data-table
+  td
+  .btn-ghost:has(
+    :is(
+      .lucide-ban,
+      .lucide-eye-off,
+      .lucide-pause,
+      .lucide-lock,
+      .lucide-circle-x,
+      .lucide-x-circle,
+      .lucide-x
+    )
+  ) {
+  --action: #ea580c;
+  --action-2: #e11d48;
 }
 
-.data-table td :is(.btn-success, .btn-primary, .btn-warning):hover {
-  transform: translateY(-2px);
+.data-table
+  td
+  .btn-ghost:has(
+    :is(
+      .lucide-play,
+      .lucide-check,
+      .lucide-lock-open,
+      .lucide-send,
+      .lucide-hand-coins,
+      .lucide-banknote,
+      .lucide-truck
+    )
+  ) {
+  --action: #059669;
+  --action-2: #10b981;
+}
+
+.data-table td .btn-ghost:has(:is(.lucide-flag, .lucide-message-square-warning)) {
+  --action: #b45309;
+  --action-2: #eab308;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-table td :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):hover {
+    transform: none;
+  }
+  .data-table
+    td
+    :is(.btn-ghost, .btn-success, .btn-primary, .btn-warning, .btn-danger):hover::after {
+    animation: none;
+  }
+}
+
+/* Row number badge + hover accent on the row's start edge */
+.data-table .row-num {
+  display: inline-flex;
+  min-inline-size: 2rem;
+  block-size: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--primary) 14%, var(--surface)),
+    color-mix(in oklab, var(--cyan) 14%, var(--surface))
+  );
+  padding-inline: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  transition:
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 200ms,
+    color 200ms;
+}
+
+.data-table tbody tr:hover .row-num {
+  transform: scale(1.12);
+  background: linear-gradient(135deg, var(--primary), var(--cyan));
+  color: #fff;
+}
+
+.data-table tbody tr:hover > td:first-child {
+  box-shadow: inset -3px 0 0 var(--primary);
+}
+
+/* ───────────── 404 ───────────── */
+.nf-stage {
+  background:
+    radial-gradient(
+      ellipse at top,
+      color-mix(in oklab, var(--primary) 10%, var(--bg)),
+      var(--bg) 60%
+    ),
+    var(--bg);
+}
+
+.nf-grid {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 70%);
+  animation: nf-grid-pan 18s linear infinite;
+}
+
+.nf-blob {
+  position: absolute;
+  z-index: -1;
+  inline-size: 26rem;
+  block-size: 26rem;
+  border-radius: 999px;
+  filter: blur(70px);
+  opacity: 0.45;
+  animation: nf-drift 14s ease-in-out infinite alternate;
+}
+
+.nf-blob-a {
+  inset-block-start: -8rem;
+  inset-inline-start: -6rem;
+  background: var(--primary);
+}
+
+.nf-blob-b {
+  inset-block-end: -10rem;
+  inset-inline-end: -6rem;
+  background: var(--cyan);
+  animation-delay: -5s;
+}
+
+.nf-blob-c {
+  inset-block-start: 35%;
+  inset-inline-start: 55%;
+  inline-size: 18rem;
+  block-size: 18rem;
+  background: #8b5cf6;
+  opacity: 0.3;
+  animation-delay: -9s;
+}
+
+.nf-spark {
+  position: absolute;
+  z-index: -1;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 0 12px 3px color-mix(in oklab, var(--cyan) 70%, transparent),
+    0 0 2px #fff;
+  animation: nf-twinkle 3.2s ease-in-out infinite;
+}
+
+.nf-eyebrow {
+  border: 1px solid color-mix(in oklab, var(--primary) 25%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 8%, var(--surface));
+  padding: 0.35rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  animation: nf-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nf-digits {
+  display: flex;
+  gap: clamp(0.25rem, 2vw, 1.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(7rem, 26vw, 15rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.nf-digit {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(120deg, var(--primary), #8b5cf6, var(--cyan), var(--primary));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 18px 30px color-mix(in oklab, var(--primary) 35%, transparent));
+  animation:
+    nf-float 4.2s ease-in-out infinite,
+    nf-shine 6s linear infinite;
+}
+
+.nf-orbit {
+  position: absolute;
+  inset: 22% -18%;
+  border: 2px dashed color-mix(in oklab, var(--cyan) 55%, transparent);
+  border-radius: 999px;
+  transform: rotate(-18deg);
+  animation: nf-spin 9s linear infinite;
+}
+
+.nf-planet {
+  position: absolute;
+  inset-block-start: -9px;
+  inset-inline-start: 50%;
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--cyan), var(--primary));
+  box-shadow: 0 0 18px 4px color-mix(in oklab, var(--cyan) 60%, transparent);
+}
+
+.nf-card {
+  border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+  border-radius: 1.5rem;
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  box-shadow: var(--shadow-hover);
+  backdrop-filter: blur(18px) saturate(1.4);
+  animation: nf-rise 800ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nf-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-2deg);
+  }
+}
+
+@keyframes nf-shine {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+@keyframes nf-spin {
+  to {
+    transform: rotate(342deg);
+  }
+}
+
+@keyframes nf-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(3rem, 2rem) scale(1.15);
+  }
+}
+
+@keyframes nf-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nf-grid-pan {
+  to {
+    background-position: 44px 44px;
+  }
 }

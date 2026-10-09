@@ -154,6 +154,7 @@ export function RolesPage() {
       <section className="list-panel">
         <h2 className="font-display text-lg font-bold text-ink">{t.caption}</h2>
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
           columns={columns}

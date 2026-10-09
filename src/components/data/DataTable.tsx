@@ -16,6 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
+import { formatNumber } from '@/lib/format';
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- generics must match the library
@@ -49,6 +50,8 @@ export interface DataTableProps<T> {
   empty?: ReactNode;
   caption: string;
   skeletonRows?: number;
+  /** Rows before this page (page − 1) × pageSize, so the # column keeps counting across pages. */
+  startIndex?: number;
 }
 
 /** Clicks on controls inside a row (actions, links, checkboxes) must not also open the row. */
@@ -85,6 +88,7 @@ function DataTableInner<T>({
   empty,
   caption,
   skeletonRows = 8,
+  startIndex = 0,
 }: DataTableProps<T>) {
   const selectable = Boolean(rowSelection && onRowSelectionChange);
   const handleRowClick = (event: MouseEvent, row: T) => {
@@ -117,7 +121,7 @@ function DataTableInner<T>({
     );
 
   const rows = table.getRowModel().rows;
-  const columnCount = columns.length + (selectable ? 1 : 0);
+  const columnCount = columns.length + (selectable ? 2 : 1);
 
   if (!isLoading && rows.length === 0) {
     return <div className="table-card">{empty ?? <EmptyState title={ar.list.emptyTitle} />}</div>;
@@ -132,7 +136,7 @@ function DataTableInner<T>({
       aria-busy={isLoading || isFetching}
     >
       {/* Desktop / tablet table */}
-      <div className="hidden overflow-x-auto md:block">
+      <div className="hidden overflow-x-auto overflow-y-hidden px-1.5 py-1 md:block">
         <table className="data-table w-full border-separate border-spacing-y-1.5 text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead>
@@ -152,6 +156,9 @@ function DataTableInner<T>({
                     />
                   </th>
                 ) : null}
+                <th scope="col" className="w-14 px-3 py-3.5 text-center text-xs font-semibold">
+                  {ar.list.rowNumber}
+                </th>
                 {group.headers.map((header) => {
                   const sortable = header.column.getCanSort() && Boolean(onSortingChange);
                   const direction = header.column.getIsSorted();
@@ -209,7 +216,7 @@ function DataTableInner<T>({
                       onRowClick ? (event) => handleRowClick(event, row.original) : undefined
                     }
                     className={cn(
-                      'group/row bg-surface transition-[background-color,transform] duration-200 ease-brand hover:-translate-x-0.5 hover:bg-primary-tint data-[state=selected]:bg-primary-tint',
+                      'group/row bg-surface transition-[background-color,box-shadow] duration-200 ease-brand hover:bg-primary-tint data-[state=selected]:bg-primary-tint',
                       onRowClick && 'cursor-pointer',
                     )}
                   >
@@ -227,12 +234,16 @@ function DataTableInner<T>({
                         />
                       </td>
                     ) : null}
-                    {row.getVisibleCells().map((cell, index) => (
+                    <td className={cn('px-3 py-3 text-center', !selectable && 'rounded-s-md')}>
+                      <span className="row-num tabular">
+                        {formatNumber(startIndex + row.index + 1)}
+                      </span>
+                    </td>
+                    {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
                         className={cn(
-                          'px-3 py-3 text-center text-ink first:rounded-s-md last:rounded-e-md',
-                          !selectable && index === 0 && 'rounded-s-md',
+                          'px-3 py-3 text-center text-ink last:rounded-e-md',
                           cell.column.columnDef.meta?.className,
                         )}
                       >

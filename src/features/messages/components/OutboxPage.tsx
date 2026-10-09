@@ -77,6 +77,7 @@ export function OutboxPage() {
       <MessagesHeader />
       <section className="list-panel">
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.log.caption}
           data={data?.items}
           columns={columns}

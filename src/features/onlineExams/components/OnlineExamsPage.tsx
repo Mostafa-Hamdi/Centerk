@@ -212,6 +212,7 @@ export function OnlineExamsPage() {
           />
         </div>
         <DataTable
+          startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
           columns={columns}
