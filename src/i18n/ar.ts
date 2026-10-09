@@ -519,6 +519,18 @@ export const ar = {
     cancelQuestion: 'متأكد إنك عايز تلغي',
     cancelledDone: 'اتلغى ورجع المخزون',
   },
+  offline: {
+    title: 'الحضور من غير إنترنت',
+    hint: 'جهّز الحصة وانت متصل، وبعدها تقدر تعلّم الحضور حتى لو النت قطع — الحضور بيتحفظ على الجهاز لحد ما تضغط مزامنة.',
+    prepare: 'تجهيز للأوفلاين',
+    ready: (count: number) => `اتجهزت قايمة ${n(count)} طالب على الجهاز`,
+    sync: (count: number) => (count ? `مزامنة (${n(count)})` : 'مزامنة'),
+    synced: (count: number) => `اتزامن ${n(count)} حضور`,
+    keepQueue: 'الحضور لسه محفوظ على الجهاز — جرّب تاني لما النت يرجع',
+    present: 'حاضر',
+    noPack: 'لسه متجهزتش الحصة للأوفلاين',
+    queued: (count: string) => `${count} في انتظار المزامنة`,
+  },
   documents: {
     receiptPdf: 'تحميل الإيصال PDF',
     cardPdf: 'كارت الطالب PDF',

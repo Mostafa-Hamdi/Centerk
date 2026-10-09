@@ -25,6 +25,7 @@ import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { ReopenSessionButton } from '@/features/extras/components/ReopenSessionButton';
 import { RecordCorrection } from '@/features/extras/components/Tools';
+import { OfflineAttendanceCard } from '@/features/extras/components/OfflineAttendanceCard';
 import { ar } from '@/i18n/ar';
 import { cn } from '@/lib/cn';
 import { formatMoney, formatNumber, formatTime } from '@/lib/format';
@@ -341,6 +342,8 @@ export function AttendanceSessionPage({ sessionId }: { sessionId: string }) {
           </div>
         </div>
       </Card>
+
+      {data.closed ? null : <OfflineAttendanceCard sessionId={sessionId} />}
 
       <ConfirmDialog
         open={closing}
