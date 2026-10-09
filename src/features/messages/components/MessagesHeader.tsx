@@ -9,6 +9,7 @@ const tabs = [
   { href: routes.campaigns.list, label: t.tabs.campaigns },
   { href: routes.messageTemplates.list, label: t.tabs.templates },
   { href: routes.automationRules.list, label: t.tabs.automation },
+  { href: routes.chat, label: ar.chat.tab },
 ] as const;
 
 /** Shared header of the messaging pages: title, section tabs and the page's primary action. */

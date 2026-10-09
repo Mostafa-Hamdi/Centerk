@@ -57,6 +57,7 @@ export const portalNavigation: NavGroup[] = [
       { label: ar.portal.nav.home, href: routes.portal.home, icon: Home },
       { label: ar.portal.nav.exams, href: routes.portal.exams, icon: FileQuestion },
       { label: ar.portal.nav.assignments, href: routes.portal.assignments, icon: FileText },
+      { label: ar.chat.title, href: routes.portal.chat, icon: MessageSquareText },
     ],
   },
 ];
@@ -220,6 +221,7 @@ export const navigation: NavGroup[] = [
           },
           { label: ar.messages.tabs.templates, href: routes.messageTemplates.list },
           { label: ar.messages.tabs.automation, href: routes.automationRules.list },
+          { label: ar.chat.tab, href: routes.chat },
         ],
       },
       {
