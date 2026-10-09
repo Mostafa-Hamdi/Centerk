@@ -33,6 +33,7 @@ import {
   useGetHallBookingsQuery,
   type HallBookingDto,
 } from '../api';
+import { CentersTabs } from './CentersTabs';
 
 const t = ar.hallBookings;
 const v = ar.validation;
@@ -184,6 +185,7 @@ export function HallBookingsPage() {
         <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
         <p className="mt-1 text-muted">{t.description}</p>
       </header>
+      <CentersTabs />
 
       <Can permission="centers.halls">
         <Card className="p-4">

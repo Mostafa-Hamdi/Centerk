@@ -1,6 +1,6 @@
 'use client';
 
-import { CalendarDays, Plus } from 'lucide-react';
+import { CalendarDays, DoorOpen, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -65,6 +65,13 @@ export function GroupsListPage() {
           >
             <CalendarDays className="size-4" aria-hidden />
             {ar.sessions.scheduleLink}
+          </Link>
+          <Link
+            href={routes.halls.list}
+            className={buttonVariants({ variant: 'info', size: 'lg' })}
+          >
+            <DoorOpen className="size-4" aria-hidden />
+            {ar.halls.link}
           </Link>
           <Can permission="groups.create">
             <Link href={routes.groups.new} className={buttonVariants({ size: 'lg' })}>

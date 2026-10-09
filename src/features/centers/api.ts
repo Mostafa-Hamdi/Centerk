@@ -1,8 +1,8 @@
 import { api } from '@/services/api';
-import { normalizePaged, readString } from '@/services/normalize';
+import { normalizePaged, read, readNumber, readString } from '@/services/normalize';
 import { toQueryParams, type ListParams, type Paged } from '@/services/types';
 
-/** Hall rental for external teachers — live /hall-bookings (BookingRequest, UTC times). */
+/** Centers — hall rental (/hall-bookings, UTC times) and teacher settlements (/settlements). */
 export interface HallBookingDto {
   id: string;
   hallId: string | null;
@@ -21,6 +21,30 @@ const normalizeBooking = (raw: unknown, index = 0): HallBookingDto => ({
   startsAt: readString(raw, 'startsAtUtc'),
   endsAt: readString(raw, 'endsAtUtc'),
   status: readString(raw, 'status') ?? 'Booked',
+});
+
+export interface SettlementDto {
+  id: string;
+  teacherId: string | null;
+  month: string;
+  grossCollected: number;
+  centerShare: number;
+  netToTeacher: number;
+  status: string;
+  disputeNote: string | null;
+  paidAt: string | null;
+}
+
+const normalizeSettlement = (raw: unknown, index = 0): SettlementDto => ({
+  id: readString(raw, 'id') ?? `settlement-${index}`,
+  teacherId: readString(raw, 'teacherId'),
+  month: readString(raw, 'month') ?? '—',
+  grossCollected: readNumber(raw, 'grossCollected') ?? 0,
+  centerShare: readNumber(raw, 'centerShare') ?? 0,
+  netToTeacher: readNumber(raw, 'netToTeacher') ?? 0,
+  status: readString(raw, 'status') ?? 'Pending',
+  disputeNote: readString(raw, 'disputeNote'),
+  paidAt: readString(raw, 'paidAtUtc'),
 });
 
 const centersApi = api.injectEndpoints({
@@ -51,10 +75,54 @@ const centersApi = api.injectEndpoints({
       transformResponse: () => undefined,
       invalidatesTags: [{ type: 'HallBooking', id: 'LIST' }],
     }),
+    getSettlements: build.query<Paged<SettlementDto>, ListParams & { month: string }>({
+      query: ({ month, ...params }) => ({
+        url: '/settlements',
+        params: { ...toQueryParams(params), month },
+      }),
+      transformResponse: (raw: unknown, _meta, params) =>
+        normalizePaged(raw, normalizeSettlement, params, 'settlements'),
+      providesTags: [{ type: 'Settlement', id: 'LIST' }],
+    }),
+    /** POST /settlements/generate?month= — teachers without an agreement are skipped. */
+    generateSettlements: build.mutation<{ created: number; skipped: number }, string>({
+      query: (month) => ({ url: '/settlements/generate', method: 'POST', params: { month } }),
+      transformResponse: (raw: unknown) => {
+        const skipped = read(raw, 'skippedWithoutAgreement');
+        return {
+          created: readNumber(raw, 'created') ?? 0,
+          skipped: Array.isArray(skipped) ? skipped.length : 0,
+        };
+      },
+      invalidatesTags: [{ type: 'Settlement', id: 'LIST' }],
+    }),
+    settlementAction: build.mutation<
+      undefined,
+      | { id: string; action: 'pay'; branchId?: string; cashShiftId?: string }
+      | { id: string; action: 'dispute'; reason: string }
+    >({
+      query: (arg) =>
+        arg.action === 'pay'
+          ? {
+              url: `/settlements/${encodeURIComponent(arg.id)}/pay`,
+              method: 'POST',
+              body: { branchId: arg.branchId, cashShiftId: arg.cashShiftId },
+            }
+          : {
+              url: `/settlements/${encodeURIComponent(arg.id)}/dispute`,
+              method: 'POST',
+              body: { reason: arg.reason },
+            },
+      transformResponse: () => undefined,
+      invalidatesTags: [{ type: 'Settlement', id: 'LIST' }, 'Expense', 'CashShift', 'Dashboard'],
+    }),
   }),
 });
 
 export const {
+  useGetSettlementsQuery,
+  useGenerateSettlementsMutation,
+  useSettlementActionMutation,
   useGetHallBookingsQuery,
   useCreateHallBookingMutation,
   useCancelHallBookingMutation,
