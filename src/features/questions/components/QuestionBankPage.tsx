@@ -37,6 +37,7 @@ import {
   useQuestionActionMutation,
   type QuestionDto,
 } from '../api';
+import { QuestionsTabs } from './QuestionsTabs';
 
 const t = ar.questions;
 const ALL = 'all';
@@ -185,6 +186,8 @@ export function QuestionBankPage() {
           </Can>
         </div>
       </header>
+
+      <QuestionsTabs />
 
       {addingUnit ? <AddUnitForm onDone={() => setAddingUnit(false)} /> : null}
 
