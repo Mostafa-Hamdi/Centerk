@@ -61,7 +61,8 @@ export function SettlementsPage() {
       {
         accessorKey: 'teacherId',
         header: t.teacher,
-        cell: ({ getValue }) =>
+        cell: ({ row, getValue }) =>
+          row.original.teacherName ??
           (getValue<string | null>() &&
             teachers.data?.items.find((member) => member.id === getValue<string>())?.name) ??
           '—',

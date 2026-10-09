@@ -6,7 +6,9 @@ import { toQueryParams, type ListParams, type Paged } from '@/services/types';
 export interface HallBookingDto {
   id: string;
   hallId: string | null;
+  hallName: string | null;
   teacherId: string | null;
+  teacherName: string | null;
   groupId: string | null;
   startsAt: string | null;
   endsAt: string | null;
@@ -16,7 +18,9 @@ export interface HallBookingDto {
 const normalizeBooking = (raw: unknown, index = 0): HallBookingDto => ({
   id: readString(raw, 'id') ?? `booking-${index}`,
   hallId: readString(raw, 'hallId'),
+  hallName: readString(raw, 'hallName'),
   teacherId: readString(raw, 'teacherId'),
+  teacherName: readString(raw, 'teacherName'),
   groupId: readString(raw, 'groupId'),
   startsAt: readString(raw, 'startsAtUtc'),
   endsAt: readString(raw, 'endsAtUtc'),
@@ -26,6 +30,7 @@ const normalizeBooking = (raw: unknown, index = 0): HallBookingDto => ({
 export interface SettlementDto {
   id: string;
   teacherId: string | null;
+  teacherName: string | null;
   month: string;
   grossCollected: number;
   centerShare: number;
@@ -38,6 +43,7 @@ export interface SettlementDto {
 const normalizeSettlement = (raw: unknown, index = 0): SettlementDto => ({
   id: readString(raw, 'id') ?? `settlement-${index}`,
   teacherId: readString(raw, 'teacherId'),
+  teacherName: readString(raw, 'teacherName'),
   month: readString(raw, 'month') ?? '—',
   grossCollected: readNumber(raw, 'grossCollected') ?? 0,
   centerShare: readNumber(raw, 'centerShare') ?? 0,

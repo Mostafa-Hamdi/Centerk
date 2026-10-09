@@ -25,6 +25,7 @@ export interface PaymentDto {
   voidReason: string | null;
   studentId: string | null;
   studentName: string | null;
+  studentCode: string | null;
 }
 
 export interface PaymentDetailsDto extends PaymentDto {
@@ -60,6 +61,7 @@ function normalizePayment(raw: unknown, index: number): PaymentDto {
     voidReason: readString(raw, 'voidReason'),
     studentId: readString(raw, 'studentId', 'student.id'),
     studentName: readString(raw, 'studentName', 'student.fullName'),
+    studentCode: readString(raw, 'studentCode', 'student.code'),
   };
 }
 

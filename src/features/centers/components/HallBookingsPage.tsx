@@ -83,7 +83,8 @@ export function HallBookingsPage() {
       {
         accessorKey: 'hallId',
         header: t.hall,
-        cell: ({ getValue }) =>
+        cell: ({ row, getValue }) =>
+          row.original.hallName ??
           (getValue<string | null>() &&
             halls.data?.find((hall) => hall.id === getValue<string>())?.name) ??
           '—',
@@ -91,7 +92,8 @@ export function HallBookingsPage() {
       {
         accessorKey: 'teacherId',
         header: t.teacher,
-        cell: ({ getValue }) =>
+        cell: ({ row, getValue }) =>
+          row.original.teacherName ??
           (getValue<string | null>() &&
             teachers.data?.items.find((member) => member.id === getValue<string>())?.name) ??
           '—',

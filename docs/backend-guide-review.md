@@ -590,3 +590,21 @@ Each one is a frontend gap, not a backend problem. The **Plan** line under each 
 | CORS         | Allow the production (Vercel) origin, not only `http://localhost:3000`                                                                             |
 | OTP provider | `/auth/otp/*` returns 503 `otp-provider-unavailable` — guardian / student login cannot be tested end-to-end                                        |
 | Test data    | A seeded tenant with groups, sessions, payments, an online exam and a guardian + student linked to it, so every page can be checked with real data |
+
+## 3. Status after the backend update (live Swagger, 411 operations)
+
+Now used by the frontend: `studentName`/`studentCode` on payments, assignment submissions and online-exam results (+ `answers[].essayText`, `maxScore`), `userName` on staff attendance and payrolls, `teacherName` on settlements, `hallName`/`teacherName` on hall bookings, `actorName` on the audit log.
+
+Frontend fixes from the contract review:
+
+- `POST /staff` requires `password` → the add-staff form now asks for an initial password.
+- Every `reason` field requires at least 5 characters → the confirm dialog enforces it.
+
+Still missing in the live API:
+
+| Need                              | Where                                                                               | Why                                                                                          |
+| --------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `enrollmentId`                    | `GET /groups/{id}/students` items or `GET /students/{id}`.groups (today `string[]`) | `POST /enrollments/{id}/transfer` and `DELETE /enrollments/{id}` cannot be called without it |
+| `customRoleId` / `customRoleName` | `GET /staff/{id}`                                                                   | Show the current custom role on the staff edit page                                          |
+| `studentName`                     | `GET /excuses` items                                                                | Excuses inbox shows a link instead of the name                                               |
+| Labels / types                    | `GET /settings/policies`                                                            | Policies editor renders raw keys                                                             |

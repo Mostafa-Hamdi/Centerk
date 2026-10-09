@@ -75,7 +75,7 @@ const normalizeResult = (raw: unknown, index: number): ExamResultDto => ({
     return Array.isArray(answers)
       ? (answers as unknown[]).map((answer) => ({
           questionId: readString(answer, 'questionId') ?? '',
-          text: readString(answer, 'answerText', 'text', 'answer'),
+          text: readString(answer, 'essayText', 'answerText', 'text'),
           pointsAwarded: readNumber(answer, 'pointsAwarded'),
         }))
       : [];

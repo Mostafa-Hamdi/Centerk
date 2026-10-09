@@ -12,10 +12,11 @@ import { FormPage } from '@/components/form/FormPage';
 import { FormSection } from '@/components/form/FormSection';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
-import { phoneSchema } from '@/features/auth/schemas';
+import { newPasswordSchema, phoneSchema } from '@/features/auth/schemas';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -32,6 +33,8 @@ const staffSchema = z.object({
   phone: phoneSchema,
   email: z.union([z.literal(''), z.email()]),
   role: z.enum(STAFF_ROLES),
+  /** Only validated when creating (see save). */
+  password: z.string(),
 });
 
 type StaffValues = z.infer<typeof staffSchema>;
@@ -45,7 +48,7 @@ export function StaffFormPage({ id }: { id?: string }) {
   const form = useForm<StaffValues>({
     resolver: zodResolver(staffSchema),
     mode: 'onBlur',
-    defaultValues: { name: '', phone: '', email: '', role: 'Teacher' },
+    defaultValues: { name: '', phone: '', email: '', role: 'Teacher', password: '' },
   });
   const { errors, isSubmitting, isDirty, isSubmitSuccessful } = form.formState;
 
@@ -57,6 +60,7 @@ export function StaffFormPage({ id }: { id?: string }) {
       phone: data.phone ?? '',
       email: data.email ?? '',
       role: STAFF_ROLES.find((role) => role === data.role) ?? 'Teacher',
+      password: '',
     });
   }, [member.data, form]);
 
@@ -67,10 +71,18 @@ export function StaffFormPage({ id }: { id?: string }) {
 
   const save = async (values: StaffValues) => {
     try {
+      if (!id) {
+        const password = newPasswordSchema.safeParse(values.password);
+        if (!password.success) {
+          form.setError('password', { message: password.error.issues[0]?.message });
+          return;
+        }
+      }
       await saveStaff({
         id,
         ...values,
         email: values.email || null,
+        password: id ? undefined : values.password,
         branchId: member.data?.branchId ?? branchId ?? undefined,
       }).unwrap();
       toast.success(id ? t.form.updated : t.form.created, id ? values.name : t.form.createdHint);
@@ -129,6 +141,22 @@ export function StaffFormPage({ id }: { id?: string }) {
             />
           )}
         </FormField>
+        {id ? null : (
+          <FormField
+            label={t.form.password}
+            hint={t.form.passwordHint}
+            error={errors.password?.message}
+            required
+          >
+            {(control) => (
+              <PasswordInput
+                {...control}
+                {...form.register('password')}
+                autoComplete="new-password"
+              />
+            )}
+          </FormField>
+        )}
         <FormField label={t.form.role} error={errors.role?.message} required>
           {(control) => (
             <Controller

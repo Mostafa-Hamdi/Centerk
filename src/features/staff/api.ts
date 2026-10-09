@@ -34,6 +34,7 @@ export interface StaffDto {
 export interface StaffAttendanceDto {
   id: string;
   userId: string | null;
+  userName: string | null;
   date: string | null;
   checkIn: string | null;
   checkOut: string | null;
@@ -43,6 +44,7 @@ export interface StaffAttendanceDto {
 export interface PayrollDto {
   id: string;
   userId: string | null;
+  userName: string | null;
   month: string;
   baseSalary: number;
   bonus: number;
@@ -58,6 +60,8 @@ export interface StaffInput {
   email: string | null;
   role: StaffRole;
   branchId?: string | null;
+  /** Required by POST /staff (initial password); not sent on edit. */
+  password?: string;
 }
 
 const normalizeStaff = (raw: unknown, index = 0): StaffDto => ({
@@ -73,6 +77,7 @@ const normalizeStaff = (raw: unknown, index = 0): StaffDto => ({
 const normalizeAttendance = (raw: unknown, index: number): StaffAttendanceDto => ({
   id: readString(raw, 'id') ?? `staff-attendance-${index}`,
   userId: readString(raw, 'userId'),
+  userName: readString(raw, 'userName'),
   date: readString(raw, 'date'),
   checkIn: readString(raw, 'checkIn'),
   checkOut: readString(raw, 'checkOut'),
@@ -86,6 +91,7 @@ const normalizePayroll = (raw: unknown, index = 0): PayrollDto => {
   return {
     id: readString(raw, 'id') ?? `payroll-${index}`,
     userId: readString(raw, 'userId'),
+    userName: readString(raw, 'userName'),
     month: readString(raw, 'month') ?? '—',
     baseSalary,
     bonus,

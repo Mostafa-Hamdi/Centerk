@@ -52,6 +52,26 @@ export function PaymentsListPage() {
         ),
       },
       {
+        id: 'student',
+        header: t.columns.student,
+        cell: ({ row }) =>
+          row.original.studentId ? (
+            <Link
+              href={routes.students.detail(row.original.studentId)}
+              className="flex flex-col items-center hover:text-primary"
+            >
+              <span className="font-medium">{row.original.studentName ?? '—'}</span>
+              {row.original.studentCode ? (
+                <span dir="ltr" className="text-xs text-muted tabular">
+                  {row.original.studentCode}
+                </span>
+              ) : null}
+            </Link>
+          ) : (
+            (row.original.studentName ?? '—')
+          ),
+      },
+      {
         accessorKey: 'amount',
         header: t.columns.amount,
         meta: { className: 'tabular' },

@@ -843,6 +843,7 @@ export const ar = {
       method: 'طريقة الدفع',
       time: 'الوقت',
       status: 'الحالة',
+      student: 'الطالب',
     },
     status: { Active: 'مدفوع', Voided: 'ملغي' },
     form: {
@@ -1321,6 +1322,8 @@ export const ar = {
       name: 'الاسم',
       phone: 'الموبايل',
       email: 'الإيميل (اختياري)',
+      password: 'كلمة السر المبدئية',
+      passwordHint: 'الموظف يقدر يغيّرها بعد أول دخول',
       role: 'الوظيفة',
       created: 'اتضاف الموظف',
       createdHint: 'هيوصله لينك تفعيل الحساب على الواتساب.',
@@ -1970,7 +1973,7 @@ export const ar = {
     typeMismatch: 'النص مش مطابق',
     reason: 'السبب',
     reasonPlaceholder: 'اكتب سبب واضح — هيتسجل في سجل العمليات',
-    reasonRequired: 'لازم تكتب السبب',
+    reasonRequired: 'اكتب السبب (٥ حروف على الأقل)',
   },
   toaster: {
     region: 'الإشعارات',

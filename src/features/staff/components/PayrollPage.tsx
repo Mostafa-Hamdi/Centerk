@@ -94,7 +94,8 @@ export function PayrollPage() {
       {
         accessorKey: 'userId',
         header: t.staff,
-        cell: ({ getValue }) =>
+        cell: ({ row, getValue }) =>
+          row.original.userName ??
           (getValue<string | null>() &&
             staff.data?.items.find((member) => member.id === getValue<string>())?.name) ??
           '—',

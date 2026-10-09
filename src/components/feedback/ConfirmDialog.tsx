@@ -66,7 +66,7 @@ export function ConfirmDialog({
   const danger = tone === 'danger';
 
   const confirm = async () => {
-    if (requireReason && !reason.trim()) {
+    if (requireReason && reason.trim().length < 5) {
       setReasonError(true);
       return;
     }
