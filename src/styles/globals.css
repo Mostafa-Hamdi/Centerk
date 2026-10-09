@@ -780,3 +780,27 @@
     background-position: 44px 44px;
   }
 }
+
+/* Pointer cursor on everything clickable (Tailwind v4 preflight resets buttons to default). */
+@layer base {
+  a[href],
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='option'],
+  [role='menuitem'],
+  [role='radio'],
+  [role='checkbox'],
+  [role='switch'],
+  summary,
+  select:not(:disabled),
+  label[for],
+  input:is([type='checkbox'], [type='radio'], [type='file']):not(:disabled) {
+    cursor: pointer;
+  }
+
+  :is(button, [role='button']):disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
