@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
 import { FileCheck2, Lock, LockOpen } from 'lucide-react';
+import Link from 'next/link';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGroupsQuery } from '@/features/groups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
@@ -86,7 +88,18 @@ export function AssignmentsPage() {
       }
     };
     return [
-      { accessorKey: 'title', header: t.title },
+      {
+        accessorKey: 'title',
+        header: t.title,
+        cell: ({ row }) => (
+          <Link
+            href={routes.assignments.detail(row.original.id)}
+            className="font-medium hover:text-primary"
+          >
+            {row.original.title}
+          </Link>
+        ),
+      },
       {
         accessorKey: 'groupId',
         header: ar.content.group,

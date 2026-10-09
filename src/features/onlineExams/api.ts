@@ -12,7 +12,7 @@ export interface OnlineExamDto {
   durationMinutes: number;
   showAnswersAfterClose: boolean;
   status: string;
-  questions: { questionId: string; text: string; points: number }[];
+  questions: { questionId: string; text: string; type: string; points: number }[];
 }
 
 export interface ExamResultDto {
@@ -23,6 +23,8 @@ export interface ExamResultDto {
   maxScore: number | null;
   status: string;
   submittedAt: string | null;
+  /** Essay answers when the API includes them (answers[] on the attempt). */
+  answers: { questionId: string; text: string | null; pointsAwarded: number | null }[];
 }
 
 export interface OnlineExamInput {
@@ -53,6 +55,7 @@ function normalizeExam(raw: unknown, index = 0): OnlineExamDto {
       ? (questions as unknown[]).map((question) => ({
           questionId: readString(question, 'questionId', 'id') ?? '',
           text: readString(question, 'text') ?? '',
+          type: readString(question, 'type') ?? 'Mcq',
           points: readNumber(question, 'points') ?? 1,
         }))
       : [],
@@ -67,6 +70,16 @@ const normalizeResult = (raw: unknown, index: number): ExamResultDto => ({
   maxScore: readNumber(raw, 'maxScore', 'totalPoints'),
   status: readString(raw, 'status') ?? '—',
   submittedAt: readString(raw, 'submittedAtUtc', 'finishedAtUtc'),
+  answers: (() => {
+    const answers = read(raw, 'answers');
+    return Array.isArray(answers)
+      ? (answers as unknown[]).map((answer) => ({
+          questionId: readString(answer, 'questionId') ?? '',
+          text: readString(answer, 'answerText', 'text', 'answer'),
+          pointsAwarded: readNumber(answer, 'pointsAwarded'),
+        }))
+      : [];
+  })(),
 });
 
 export interface OnlineExamsParams extends ListParams {
@@ -123,10 +136,26 @@ const onlineExamsApi = api.injectEndpoints({
         normalizePaged(raw, normalizeResult, params, 'online-exam-results'),
       providesTags: (_result, _error, { id }) => [{ type: 'OnlineExam', id: `RESULTS-${id}` }],
     }),
+    /** PUT /attempts/{attemptId}/answers/{questionId}/grade — manual essay marking. */
+    gradeEssay: build.mutation<
+      undefined,
+      { examId: string; attemptId: string; questionId: string; pointsAwarded: number }
+    >({
+      query: ({ attemptId, questionId, pointsAwarded }) => ({
+        url: `/attempts/${encodeURIComponent(attemptId)}/answers/${encodeURIComponent(questionId)}/grade`,
+        method: 'PUT',
+        body: { pointsAwarded },
+      }),
+      transformResponse: () => undefined,
+      invalidatesTags: (_result, _error, { examId }) => [
+        { type: 'OnlineExam', id: `RESULTS-${examId}` },
+      ],
+    }),
   }),
 });
 
 export const {
+  useGradeEssayMutation,
   useGetOnlineExamsQuery,
   useGetOnlineExamQuery,
   useSaveOnlineExamMutation,

@@ -47,6 +47,28 @@ const normalizeCourse = (raw: unknown, index = 0): CourseDto => ({
   assignmentIds: ids(read(raw, 'assignmentIds')),
 });
 
+export interface SubmissionDto {
+  id: string;
+  studentId: string | null;
+  studentName: string | null;
+  note: string | null;
+  status: string;
+  submittedAt: string | null;
+  score: number | null;
+  feedback: string | null;
+}
+
+const normalizeSubmission = (raw: unknown, index: number): SubmissionDto => ({
+  id: readString(raw, 'id') ?? `submission-${index}`,
+  studentId: readString(raw, 'studentId'),
+  studentName: readString(raw, 'studentName', 'student.fullName', 'student.name'),
+  note: readString(raw, 'note'),
+  status: readString(raw, 'status') ?? 'Submitted',
+  submittedAt: readString(raw, 'submittedAtUtc'),
+  score: readNumber(raw, 'score'),
+  feedback: readString(raw, 'feedback'),
+});
+
 export interface VideoDto {
   id: string;
   title: string;
@@ -156,6 +178,36 @@ const contentApi = api.injectEndpoints({
       transformResponse: () => undefined,
       invalidatesTags: [{ type: 'Assignment', id: 'LIST' }],
     }),
+    getAssignment: build.query<AssignmentDto, string>({
+      query: (id) => `/assignments/${encodeURIComponent(id)}`,
+      transformResponse: (raw: unknown) => normalizeAssignment(raw),
+      providesTags: (_result, _error, id) => [{ type: 'Assignment', id }],
+    }),
+    getSubmissions: build.query<Paged<SubmissionDto>, ListParams & { assignmentId: string }>({
+      query: ({ assignmentId, ...params }) => ({
+        url: `/assignments/${encodeURIComponent(assignmentId)}/submissions`,
+        params: toQueryParams(params),
+      }),
+      transformResponse: (raw: unknown, _meta, params) =>
+        normalizePaged(raw, normalizeSubmission, params, 'submissions'),
+      providesTags: (_result, _error, { assignmentId }) => [
+        { type: 'Assignment', id: `SUBMISSIONS-${assignmentId}` },
+      ],
+    }),
+    gradeSubmission: build.mutation<
+      undefined,
+      { id: string; assignmentId: string; score: number | null; feedback: string | null }
+    >({
+      query: ({ id, score, feedback }) => ({
+        url: `/submissions/${encodeURIComponent(id)}/grade`,
+        method: 'PUT',
+        body: { score, feedback },
+      }),
+      transformResponse: () => undefined,
+      invalidatesTags: (_result, _error, { assignmentId }) => [
+        { type: 'Assignment', id: `SUBMISSIONS-${assignmentId}` },
+      ],
+    }),
     getCourses: build.query<Paged<CourseDto>, ListParams>({
       query: (params) => ({ url: '/courses', params: withInactive(params) }),
       transformResponse: (raw: unknown, _meta, params) =>
@@ -179,6 +231,9 @@ const contentApi = api.injectEndpoints({
 });
 
 export const {
+  useGetAssignmentQuery,
+  useGetSubmissionsQuery,
+  useGradeSubmissionMutation,
   useGetCoursesQuery,
   useSaveCourseMutation,
   useDeleteCourseMutation,
