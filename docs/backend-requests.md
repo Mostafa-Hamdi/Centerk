@@ -301,3 +301,16 @@ Not blocking the current frontend phases (online payments, video, billing come l
 
 `GET /payments` items (`Payment`) have no student reference. Please add `studentId`, `studentName`, `studentCode`
 (like the other *NamedDto responses) so the payments table and receipts can show who paid.
+
+## Frontend assumptions to confirm (2026-10-09)
+
+The pages below are live, but these response details are untyped in Swagger, so the frontend reads them defensively. Please confirm or adjust:
+
+| #   | Endpoint                                                                              | What the frontend sends / expects                                                                                                                                                                                           |
+| --- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `POST /students/import/commit`                                                        | `mapping` is sent as `{ field: sheetColumn }` with fields `fullName, phone, parentName, parentPhone, gradeLevel, school, code, notes`; plus `guardianConsent: true` and `branchId`.                                         |
+| 2   | `GET /online-exams/{id}/results`                                                      | Items: `{ id (attemptId), studentName \| student{fullName,code}, score, maxScore, status, submittedAtUtc, answers[{questionId, answerText, pointsAwarded}] }`. `answers` is needed to show essay text in the marking panel. |
+| 3   | `GET /portal/assignments`                                                             | Items: assignment fields (`id, title, description, dueAtUtc, maxScore, status`) + `submission{note, score, feedback}` (or nested under `assignment`).                                                                       |
+| 4   | `GET /assignments/{id}/submissions`                                                   | Please include `studentName` on each submission (only `studentId` today).                                                                                                                                                   |
+| 5   | `GET /staff-attendance`, `/payrolls`, `/settlements`, `/hall-bookings`, `/audit-logs` | Names are joined client-side from `/staff`; a `userName` / `teacherName` / `actorName` field would save the extra call.                                                                                                     |
+| 6   | `GET /settings/policies`                                                              | Rendered as a generic key → value editor (booleans, numbers, strings); Arabic labels per key would be nicer if you can return them.                                                                                         |
