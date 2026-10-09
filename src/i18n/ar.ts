@@ -1659,6 +1659,8 @@ export const ar = {
     dispute: 'اعتراض',
     disputeQuestion: 'سجّل اعتراض على تسوية',
     disputed: 'اتسجل الاعتراض',
+    details: 'تفاصيل التسوية',
+    agreementSnapshot: 'الاتفاقية وقت الحساب',
   },
   halls: {
     title: 'القاعات',

@@ -26,6 +26,7 @@ import {
   useSettlementActionMutation,
   type SettlementDto,
 } from '../api';
+import { SettlementDetailsButton } from './SettlementDetailsButton';
 import { CentersTabs } from './CentersTabs';
 
 const t = ar.settlements;
@@ -93,31 +94,39 @@ export function SettlementsPage() {
       {
         id: 'actions',
         header: '',
-        cell: ({ row }) =>
-          row.original.status.toLowerCase() === 'paid' ? null : (
-            <div className="flex gap-1">
-              <Can permission="centers.settle">
-                <Button
-                  size="sm"
-                  variant="success"
-                  iconStart={<HandCoins aria-hidden />}
-                  onClick={() => setPending({ settlement: row.original, action: 'pay' })}
-                >
-                  {t.pay}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  iconStart={<MessageSquareWarning aria-hidden />}
-                  onClick={() => setPending({ settlement: row.original, action: 'dispute' })}
-                >
-                  {t.dispute}
-                </Button>
-              </Can>
-            </div>
-          ),
+        cell: ({ row }) => (
+          <span className="flex items-center justify-center gap-1">
+            <SettlementDetailsButton
+              id={row.original.id}
+              title={teacherName(row.original.teacherId)}
+            />
+            {row.original.status.toLowerCase() === 'paid' ? null : (
+              <div className="flex gap-1">
+                <Can permission="centers.settle">
+                  <Button
+                    size="sm"
+                    variant="success"
+                    iconStart={<HandCoins aria-hidden />}
+                    onClick={() => setPending({ settlement: row.original, action: 'pay' })}
+                  >
+                    {t.pay}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    iconStart={<MessageSquareWarning aria-hidden />}
+                    onClick={() => setPending({ settlement: row.original, action: 'dispute' })}
+                  >
+                    {t.dispute}
+                  </Button>
+                </Can>
+              </div>
+            )}
+          </span>
+        ),
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- teacherName only reads teachers.data
     [teachers.data],
   );
 
