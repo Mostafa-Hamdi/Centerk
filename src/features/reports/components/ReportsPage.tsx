@@ -2,11 +2,13 @@
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { Banknote, ClipboardList, Receipt, TrendingUp, Wallet } from 'lucide-react';
+import { Banknote, CalendarClock, ClipboardList, Receipt, TrendingUp, Wallet } from 'lucide-react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { DataTable } from '@/components/data/DataTable';
 import { ExportButton } from '@/components/data/ExportButton';
+import { buttonVariants } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -14,6 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatCard } from '@/components/ui/StatCard';
+import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGroupsQuery } from '@/features/groups/api';
 import { ar } from '@/i18n/ar';
@@ -57,15 +60,26 @@ export function ReportsPage() {
           <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
-        <Can permission="reports.export">
-          <ExportButton
-            path="/reports/students.csv"
-            params={{}}
-            fileName="students"
-            extension="csv"
-            label={t.exportStudents}
-          />
-        </Can>
+        <div className="flex flex-wrap gap-2">
+          <Can permission="reports.schedule">
+            <Link
+              href={routes.reports.scheduled.list}
+              className={buttonVariants({ variant: 'info' })}
+            >
+              <CalendarClock className="size-4" aria-hidden />
+              {t.scheduledLink}
+            </Link>
+          </Can>
+          <Can permission="reports.export">
+            <ExportButton
+              path="/reports/students.csv"
+              params={{}}
+              fileName="students"
+              extension="csv"
+              label={t.exportStudents}
+            />
+          </Can>
+        </div>
       </header>
 
       <Card className="grid gap-3 p-4 sm:grid-cols-2 lg:max-w-xl">

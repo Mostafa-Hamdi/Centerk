@@ -1,11 +1,51 @@
 import { api } from '@/services/api';
-import type { AssignmentRequest } from '@/services/generated/backend';
+import type { AssignmentRequest, CourseRequest } from '@/services/generated/backend';
 import { normalizePaged, read, readNumber, readString } from '@/services/normalize';
 import { toQueryParams, type ListParams, type Paged } from '@/services/types';
 
-/** Online content — live /videos (+hide) and /assignments (+open/close). */
+/** Online content — live /videos (+hide), /assignments (+open/close) and /courses (bundles). */
 export type AssignmentKind = Exclude<AssignmentRequest['kind'], null>;
 export const ASSIGNMENT_KINDS: readonly AssignmentKind[] = ['Homework', 'Pdf', 'Worksheet'];
+
+export type CourseAccess = Exclude<CourseRequest['accessDuration'], null>;
+export const COURSE_ACCESS: readonly CourseAccess[] = ['Month', 'ThreeMonths', 'UntilTermEnd'];
+
+export interface CourseDto {
+  id: string;
+  title: string;
+  groupId: string | null;
+  price: number;
+  accessDuration: string;
+  status: string;
+  videoIds: string[];
+  assignmentIds: string[];
+}
+
+export interface CourseInput {
+  title: string;
+  groupId: string;
+  price: number;
+  accessDuration: CourseAccess;
+  status: 'Available' | 'Stopped';
+  videoIds: string[];
+  assignmentIds: string[];
+}
+
+const ids = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? (value as unknown[]).filter((item): item is string => typeof item === 'string')
+    : [];
+
+const normalizeCourse = (raw: unknown, index = 0): CourseDto => ({
+  id: readString(raw, 'id') ?? `course-${index}`,
+  title: readString(raw, 'title') ?? '—',
+  groupId: readString(raw, 'groupId'),
+  price: readNumber(raw, 'price') ?? 0,
+  accessDuration: readString(raw, 'accessDuration') ?? 'Month',
+  status: readString(raw, 'status') ?? 'Available',
+  videoIds: ids(read(raw, 'videoIds')),
+  assignmentIds: ids(read(raw, 'assignmentIds')),
+});
 
 export interface VideoDto {
   id: string;
@@ -116,10 +156,32 @@ const contentApi = api.injectEndpoints({
       transformResponse: () => undefined,
       invalidatesTags: [{ type: 'Assignment', id: 'LIST' }],
     }),
+    getCourses: build.query<Paged<CourseDto>, ListParams>({
+      query: (params) => ({ url: '/courses', params: withInactive(params) }),
+      transformResponse: (raw: unknown, _meta, params) =>
+        normalizePaged(raw, normalizeCourse, params, 'courses'),
+      providesTags: [{ type: 'Course', id: 'LIST' }],
+    }),
+    saveCourse: build.mutation<undefined, CourseInput & { id?: string }>({
+      query: ({ id, ...body }) =>
+        id
+          ? { url: `/courses/${encodeURIComponent(id)}`, method: 'PUT', body }
+          : { url: '/courses', method: 'POST', body },
+      transformResponse: () => undefined,
+      invalidatesTags: [{ type: 'Course', id: 'LIST' }],
+    }),
+    deleteCourse: build.mutation<undefined, string>({
+      query: (id) => ({ url: `/courses/${encodeURIComponent(id)}`, method: 'DELETE' }),
+      transformResponse: () => undefined,
+      invalidatesTags: [{ type: 'Course', id: 'LIST' }],
+    }),
   }),
 });
 
 export const {
+  useGetCoursesQuery,
+  useSaveCourseMutation,
+  useDeleteCourseMutation,
   useGetVideosQuery,
   useCreateVideoMutation,
   useHideVideoMutation,

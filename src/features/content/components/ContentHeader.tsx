@@ -6,6 +6,7 @@ const t = ar.content;
 const tabs = [
   { href: routes.videos.list, label: t.tabs.videos },
   { href: routes.assignments.list, label: t.tabs.assignments },
+  { href: routes.courses.list, label: t.tabs.courses },
 ] as const;
 
 /** Shared header of the online-content pages. */

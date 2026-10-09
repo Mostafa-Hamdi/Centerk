@@ -1,7 +1,61 @@
 import { api } from '@/services/api';
-import { read, readNumber, readString } from '@/services/normalize';
+import type { ScheduledReportRequest } from '@/services/generated/backend';
+import { normalizePaged, read, readNumber, readString } from '@/services/normalize';
+import { toQueryParams, type ListParams, type Paged } from '@/services/types';
 
-/** Reports — live GET /reports/financial and /reports/attendance (UTC ranges). */
+/** Reports — live /reports/financial, /reports/attendance (UTC ranges) and /scheduled-reports. */
+type NonNull<T> = Exclude<T, null>;
+export type ReportType = NonNull<ScheduledReportRequest['reportType']>;
+export type ReportFrequency = NonNull<ScheduledReportRequest['frequency']>;
+export type ReportChannel = NonNull<ScheduledReportRequest['channel']>;
+export const REPORT_TYPES: readonly ReportType[] = [
+  'DailySummary',
+  'MonthlyIncome',
+  'WeeklyAttendance',
+  'ParentMonthly',
+  'Debts',
+];
+export const REPORT_FREQUENCIES: readonly ReportFrequency[] = ['Daily', 'Weekly', 'Monthly'];
+export const REPORT_CHANNELS: readonly ReportChannel[] = ['WhatsAppPdf', 'Email', 'InApp'];
+
+export interface ScheduledReportDto {
+  id: string;
+  name: string;
+  reportType: string;
+  frequency: string;
+  channel: string;
+  nextRunAt: string | null;
+  isActive: boolean;
+  recipientUserIds: string[];
+  workerConfigured: boolean;
+}
+
+export interface ScheduledReportInput {
+  name: string;
+  reportType: ReportType;
+  frequency: ReportFrequency;
+  channel: ReportChannel;
+  recipientUserIds: string[];
+  nextRunAtUtc: string;
+  isActive: boolean;
+}
+
+const normalizeScheduled = (raw: unknown, index = 0): ScheduledReportDto => {
+  const recipients = read(raw, 'recipientUserIds');
+  return {
+    id: readString(raw, 'id') ?? `scheduled-${index}`,
+    name: readString(raw, 'name') ?? '—',
+    reportType: readString(raw, 'reportType') ?? '—',
+    frequency: readString(raw, 'frequency') ?? '—',
+    channel: readString(raw, 'channel') ?? '—',
+    nextRunAt: readString(raw, 'nextRunAtUtc'),
+    isActive: read(raw, 'isActive') !== false,
+    recipientUserIds: Array.isArray(recipients)
+      ? (recipients as unknown[]).filter((item): item is string => typeof item === 'string')
+      : [],
+    workerConfigured: read(raw, 'workerConfigured') !== false,
+  };
+};
 export interface FinancialReportDto {
   charged: number;
   collected: number;
@@ -77,7 +131,35 @@ const reportsApi = api.injectEndpoints({
           : [],
       providesTags: [{ type: 'Report', id: 'ATTENDANCE' }],
     }),
+    getScheduledReports: build.query<Paged<ScheduledReportDto>, ListParams>({
+      query: (params) => ({
+        url: '/scheduled-reports',
+        params: { ...toQueryParams(params), includeInactive: true },
+      }),
+      transformResponse: (raw: unknown, _meta, params) =>
+        normalizePaged(raw, normalizeScheduled, params, 'scheduled-reports'),
+      providesTags: [{ type: 'ScheduledReport', id: 'LIST' }],
+    }),
+    saveScheduledReport: build.mutation<undefined, ScheduledReportInput & { id?: string }>({
+      query: ({ id, ...body }) =>
+        id
+          ? { url: `/scheduled-reports/${encodeURIComponent(id)}`, method: 'PUT', body }
+          : { url: '/scheduled-reports', method: 'POST', body },
+      transformResponse: () => undefined,
+      invalidatesTags: [{ type: 'ScheduledReport', id: 'LIST' }],
+    }),
+    deleteScheduledReport: build.mutation<undefined, string>({
+      query: (id) => ({ url: `/scheduled-reports/${encodeURIComponent(id)}`, method: 'DELETE' }),
+      transformResponse: () => undefined,
+      invalidatesTags: [{ type: 'ScheduledReport', id: 'LIST' }],
+    }),
   }),
 });
 
-export const { useGetFinancialReportQuery, useGetAttendanceReportQuery } = reportsApi;
+export const {
+  useGetFinancialReportQuery,
+  useGetAttendanceReportQuery,
+  useGetScheduledReportsQuery,
+  useSaveScheduledReportMutation,
+  useDeleteScheduledReportMutation,
+} = reportsApi;
