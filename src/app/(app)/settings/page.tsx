@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '@/components/layout/ComingSoon';
+import { SettingsPage } from '@/features/settings/components/SettingsPage';
 import { ar } from '@/i18n/ar';
 
-export const metadata: Metadata = { title: ar.nav.settings };
+export const metadata: Metadata = { title: ar.settings.title };
 
 export default function Page() {
-  return <ComingSoon title={ar.nav.settings} />;
+  return <SettingsPage />;
 }
