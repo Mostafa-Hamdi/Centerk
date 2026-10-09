@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatCard } from '@/components/ui/StatCard';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { StudentDiscountsCard } from '@/features/extras/components/Cards';
 import { DocumentActions } from '@/features/account/components/DocumentActions';
 import { ar } from '@/i18n/ar';
 import { formatMoney, formatNumber, formatPercent, formatPhone } from '@/lib/format';
@@ -178,7 +179,10 @@ export function StudentDetailsPage({ id }: { id: string }) {
         </Card>
       </div>
 
-      <StudentHistoryCard studentId={id} />
+      <div className="grid items-start gap-(--shell-gap) xl:grid-cols-[2fr_1fr]">
+        <StudentHistoryCard studentId={id} />
+        <StudentDiscountsCard studentId={id} />
+      </div>
 
       <ConfirmDialog
         open={confirmOpen}

@@ -289,7 +289,7 @@ function Alerts() {
             .map((alert) => (
               <li key={alert.type}>
                 <Link
-                  href={`${routes.students.list}?alert=${alert.type}`}
+                  href={routes.alertStudents(alert.type)}
                   className="group/row flex min-h-12 items-center gap-3 rounded-md px-3 transition-all duration-200 ease-brand hover:-translate-x-0.5 hover:bg-primary-tint"
                 >
                   <span className="flex min-w-9 items-center justify-center rounded-sm bg-warning-tint px-2 py-1 font-display text-sm font-bold text-warning tabular">

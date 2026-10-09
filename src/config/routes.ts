@@ -37,6 +37,8 @@ export const routes = {
   onlineExams: resource('/online-exams'),
   payments: resource('/payments'),
   charges: '/payments/charges',
+  discounts: '/payments/discounts',
+  alertStudents: (type: Id) => `/dashboard/alerts/${encodeURIComponent(type)}`,
   dues: '/payments/dues',
   cashShifts: resource('/cash-drawer'),
   expenses: resource('/expenses'),

@@ -12,6 +12,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { GroupStudentsCard } from '@/features/account/components/GroupStudentsCard';
+import { ExtraSessionCard, WaitlistCard } from '@/features/extras/components/Cards';
 import { ar } from '@/i18n/ar';
 import { formatMoney } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -121,6 +122,10 @@ export function GroupDetailsPage({ id }: { id: string }) {
       </Card>
 
       <GroupStudentsCard groupId={id} />
+      <div className="grid items-start gap-(--shell-gap) xl:grid-cols-2">
+        <WaitlistCard groupId={id} />
+        <ExtraSessionCard groupId={id} />
+      </div>
     </div>
   );
 }

@@ -26,6 +26,7 @@ import {
   useSaveGradesMutation,
   type GradeLevel,
 } from '../api';
+import { QuizAnalyticsCard } from '@/features/extras/components/Cards';
 
 const t = ar.quizzes;
 
@@ -273,6 +274,7 @@ export function QuizGradesPage({ id }: { id: string }) {
           }
         }}
       />
+      <QuizAnalyticsCard quizId={id} />
     </div>
   );
 }
