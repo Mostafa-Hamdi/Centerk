@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Copy, FolderPlus, Library, Pencil, Plus, Trash2 } from 'lucide-react';
@@ -211,6 +212,9 @@ export function QuestionBankPage() {
             t.allTypes,
             QUESTION_TYPES.map((value) => ({ value, label: t.types[value] ?? value })),
           )}
+          <Can permission="questions.export">
+            <ExportButton path="/questions/export" params={{}} fileName="questions" />
+          </Can>
           {filterSelect(
             'difficulty',
             t.columns.difficulty,

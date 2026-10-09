@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { Receipt, Wallet } from 'lucide-react';
@@ -95,6 +96,9 @@ export function PaymentsListPage() {
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Can permission="payments.export">
+            <ExportButton path="/payments/export" params={{ date }} fileName={`payments-${date}`} />
+          </Can>
           <Link
             href={routes.charges}
             className={buttonVariants({ variant: 'neutral', size: 'lg' })}

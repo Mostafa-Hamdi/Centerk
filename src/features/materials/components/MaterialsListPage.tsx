@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import type { ColumnDef } from '@tanstack/react-table';
 import { BookCopy, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -165,6 +166,9 @@ export function MaterialsListPage() {
             onCheckedChange={(checked) => list.setFilter('lowStock', checked ? 'true' : null)}
             label={t.lowStockOnly}
           />
+          <Can permission="materials.export">
+            <ExportButton path="/materials/export" params={{}} fileName="materials" />
+          </Can>
         </div>
         <DataTable
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}

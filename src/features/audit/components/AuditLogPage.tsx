@@ -1,5 +1,7 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
+import { Can } from '@/features/auth/components/Can';
 import type { ColumnDef } from '@tanstack/react-table';
 import { History } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -84,6 +86,11 @@ export function AuditLogPage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
         <p className="mt-1 text-muted">{t.description}</p>
+        <Can permission="audit.export">
+          <div className="mt-3">
+            <ExportButton path="/audit-logs/export" params={{}} fileName="audit-log" />
+          </div>
+        </Can>
       </header>
       <section className="list-panel">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -30,6 +30,7 @@ import {
   type AttendanceReportRow,
   type ReportRange,
 } from '../api';
+import { ReportExplorer } from './ReportExplorer';
 
 const t = ar.reports;
 const ALL = 'all';
@@ -102,6 +103,7 @@ export function ReportsPage() {
       </Card>
 
       <FinancialSection range={range} />
+      <ReportExplorer from={range.from} to={range.to} />
       <AttendanceSection
         range={range}
         groupId={groupId}

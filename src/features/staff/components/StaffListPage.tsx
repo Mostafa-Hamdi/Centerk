@@ -1,5 +1,6 @@
 'use client';
 
+import { ExportButton } from '@/components/data/ExportButton';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pause, Pencil, Play, Plus, Trash2, UserCog } from 'lucide-react';
 import Link from 'next/link';
@@ -156,6 +157,9 @@ export function StaffListPage() {
             placeholder={t.searchPlaceholder}
             className="w-full max-w-sm"
           />
+          <Can permission="staff.export">
+            <ExportButton path="/staff/export" params={{}} fileName="staff" />
+          </Can>
           <div className="w-full sm:w-48">
             <Select
               aria-label={t.columns.role}
