@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useResendMessageMutation } from '@/features/account/components/DocumentActions';
 import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { MessagingToolsCard } from '@/features/extras/components/More';
 import { ar } from '@/i18n/ar';
 import { formatDateTime, formatPhone } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -104,6 +105,7 @@ export function OutboxPage() {
   return (
     <div className="flex flex-col gap-(--shell-gap)">
       <MessagesHeader />
+      <MessagingToolsCard />
       <section className="list-panel">
         <DataTable
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}

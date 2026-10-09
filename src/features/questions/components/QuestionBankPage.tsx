@@ -26,6 +26,7 @@ import { Can } from '@/features/auth/components/Can';
 import { useGetGradeLevelsQuery } from '@/features/lookups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
 import { CurriculumCard } from '@/features/extras/components/Tools';
+import { QuestionImportCard } from '@/features/extras/components/More';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -195,6 +196,7 @@ export function QuestionBankPage() {
         <>
           <AddUnitForm onDone={() => setAddingUnit(false)} />
           <CurriculumCard />
+          <QuestionImportCard />
         </>
       ) : null}
 

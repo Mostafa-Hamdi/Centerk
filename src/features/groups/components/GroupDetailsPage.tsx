@@ -13,6 +13,7 @@ import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { GroupStudentsCard } from '@/features/account/components/GroupStudentsCard';
 import { ExtraSessionCard, WaitlistCard } from '@/features/extras/components/Cards';
+import { GroupToolsCard } from '@/features/extras/components/More';
 import { ar } from '@/i18n/ar';
 import { formatMoney } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -126,6 +127,7 @@ export function GroupDetailsPage({ id }: { id: string }) {
         <WaitlistCard groupId={id} />
         <ExtraSessionCard groupId={id} />
       </div>
+      <GroupToolsCard groupId={id} />
     </div>
   );
 }

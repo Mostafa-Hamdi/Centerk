@@ -25,6 +25,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useGetStudentsQuery } from '@/features/students/api';
+import { CancelMaterialRecordButton } from '@/features/extras/components/More';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
@@ -168,8 +169,20 @@ function MovementsSection({ material }: { material: MaterialDto }) {
         cell: ({ getValue }) =>
           getValue<string | null>() ? formatDateTime(getValue<string>()) : '—',
       },
+      {
+        id: 'cancel',
+        header: '',
+        cell: ({ row }) => (
+          <CancelMaterialRecordButton
+            kind="stock-movements"
+            id={row.original.id}
+            materialId={material.id}
+            label={`${t.movementTypes[row.original.type] ?? row.original.type} · ${formatNumber(row.original.quantity)}`}
+          />
+        ),
+      },
     ],
-    [],
+    [material.id],
   );
 
   const save = async (values: z.output<typeof movementSchema>) => {
@@ -331,22 +344,31 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
       {
         id: 'collect',
         header: '',
-        cell: ({ row }) =>
-          row.original.paymentStatus === 'Owed' && row.original.studentId ? (
-            <Can permission="payments.create">
-              <Button
-                size="sm"
-                variant="success"
-                iconStart={<Banknote aria-hidden />}
-                onClick={() => setCollecting(row.original)}
-              >
-                {t.details.collect}
-              </Button>
-            </Can>
-          ) : null,
+        cell: ({ row }) => (
+          <span className="flex items-center justify-center gap-1">
+            {row.original.paymentStatus === 'Owed' && row.original.studentId ? (
+              <Can permission="payments.create">
+                <Button
+                  size="sm"
+                  variant="success"
+                  iconStart={<Banknote aria-hidden />}
+                  onClick={() => setCollecting(row.original)}
+                >
+                  {t.details.collect}
+                </Button>
+              </Can>
+            ) : null}
+            <CancelMaterialRecordButton
+              kind="material-deliveries"
+              id={row.original.id}
+              materialId={material.id}
+              label={row.original.studentName ?? material.name}
+            />
+          </span>
+        ),
       },
     ],
-    [],
+    [material.id, material.name],
   );
 
   const save = async (values: z.output<typeof deliverySchema>) => {
