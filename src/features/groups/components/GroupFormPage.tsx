@@ -15,6 +15,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { routes } from '@/config/routes';
 import { useGetTeachersQuery } from '@/features/centers/teachersApi';
+import { useGetBranchesQuery } from '@/features/settings/api';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { toProblem } from '@/lib/problem-details';
@@ -56,6 +57,8 @@ export function GroupFormPage({ id }: { id?: string }) {
   const group = useGetGroupQuery(id ?? '', { skip: !id });
   const halls = useGetHallsQuery(branchId ?? undefined);
   const teachers = useGetTeachersQuery({ page: 1, pageSize: 100 });
+  // Accounts not tied to a branch (owner) have no current branch — POST /groups needs one.
+  const branches = useGetBranchesQuery(undefined, { skip: Boolean(branchId) });
   const [createGroup] = useCreateGroupMutation();
   const [updateGroup] = useUpdateGroupMutation();
   const schedule = useGetGroupScheduleQuery(id ?? '', { skip: !id });
@@ -107,6 +110,15 @@ export function GroupFormPage({ id }: { id?: string }) {
     return <Skeleton className="mx-auto h-[28rem] w-full max-w-5xl rounded-xl" />;
 
   const save = async (values: GroupFormValues) => {
+    // Empty capacity → the hall capacity (the backend needs 1–1000).
+    const capacity =
+      values.capacity ??
+      halls.data?.find((hall) => hall.id === values.hallId)?.capacity ??
+      undefined;
+    if (!capacity) {
+      form.setError('capacity', { message: ar.validation.required });
+      throw new Error('capacity required');
+    }
     if (slots.some(slotError)) {
       toast.error(t.schedule.invalid);
       throw new Error('invalid schedule');
@@ -122,7 +134,7 @@ export function GroupFormPage({ id }: { id?: string }) {
           id,
           body: {
             name: values.name,
-            capacity: values.capacity,
+            capacity,
             monthlyPrice: values.price,
             hallId: values.hallId,
             teacherId: values.teacherId,
@@ -136,10 +148,10 @@ export function GroupFormPage({ id }: { id?: string }) {
           subject: values.subject,
           grade: values.grade,
           price: values.price,
-          capacity: values.capacity,
+          capacity,
           hallId: values.hallId,
           teacherId: values.teacherId,
-          branchId: branchId ?? undefined,
+          branchId: branchId ?? branches.data?.[0]?.id,
         }).unwrap();
         if (weekly.length) {
           try {
