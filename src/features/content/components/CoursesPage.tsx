@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { Can } from '@/features/auth/components/Can';
 import { useGetGroupsQuery } from '@/features/groups/api';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { applyServerErrors, toastInvalidForm } from '@/lib/form-errors';
 import { formatMoney } from '@/lib/format';
@@ -61,6 +62,7 @@ type CourseValues = z.output<typeof courseSchema>;
 /** /content/courses — course bundles: quick add with content picker, stop / resume, delete. */
 export function CoursesPage() {
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { data, isLoading, isFetching, error, refetch } = useGetCoursesQuery(list.params);
   const groups = useGetGroupsQuery(ALL_ITEMS);
   const videos = useGetVideosQuery(ALL_ITEMS);
@@ -305,6 +307,8 @@ export function CoursesPage() {
 
       <section className="list-panel">
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -327,6 +331,15 @@ export function CoursesPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="content.delete">
+        <BulkDeleteBar
+          resource="courses"
+          tag="Course"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={deleting !== null}

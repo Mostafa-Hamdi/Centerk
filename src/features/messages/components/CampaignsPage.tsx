@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -30,6 +31,7 @@ type Pending = { campaign: CampaignDto; action: 'send-now' | 'cancel' | 'delete'
 /** /messages/campaigns — bulk campaigns: send now, cancel, duplicate, edit drafts, delete. */
 export function CampaignsPage() {
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { data, isLoading, isFetching, error, refetch } = useGetCampaignsQuery(list.params);
   const [run] = useCampaignActionMutation();
   const [pending, setPending] = useState<Pending | null>(null);
@@ -194,6 +196,8 @@ export function CampaignsPage() {
           className="w-full max-w-sm"
         />
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -216,6 +220,15 @@ export function CampaignsPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="messages.delete">
+        <BulkDeleteBar
+          resource="campaigns"
+          tag="Campaign"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={pending !== null}

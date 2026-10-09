@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/Switch';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { toProblem } from '@/lib/problem-details';
 import {
@@ -30,6 +31,7 @@ const t = ar.messages.automation;
 /** /messages/automation — event → template rules with an optimistic on/off switch. */
 export function AutomationPage() {
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { data, isLoading, isFetching, error, refetch } = useGetAutomationRulesQuery(list.params);
   const templates = useGetTemplatesQuery({ page: 1, pageSize: 100, filters: {} });
   const [setActive] = useSetAutomationActiveMutation();
@@ -126,6 +128,8 @@ export function AutomationPage() {
       />
       <section className="list-panel">
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -148,6 +152,15 @@ export function AutomationPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="messages.delete">
+        <BulkDeleteBar
+          resource="automation-rules"
+          tag="AutomationRule"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={deleting !== null}

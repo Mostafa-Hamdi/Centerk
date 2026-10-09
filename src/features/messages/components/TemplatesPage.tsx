@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
 import { useListQueryParams } from '@/hooks/useListQueryParams';
+import { BulkDeleteBar, useBulkSelection } from '@/features/extras/components/BulkDelete';
 import { ar } from '@/i18n/ar';
 import { toProblem } from '@/lib/problem-details';
 import { useGetTemplatesQuery, useTemplateActionMutation, type TemplateDto } from '../api';
@@ -27,6 +28,7 @@ const t = ar.messages.templates;
 export function TemplatesPage() {
   const router = useRouter();
   const list = useListQueryParams();
+  const bulk = useBulkSelection();
   const { data, isLoading, isFetching, error, refetch } = useGetTemplatesQuery(list.params);
   const [run] = useTemplateActionMutation();
   const [deleting, setDeleting] = useState<TemplateDto | null>(null);
@@ -132,6 +134,8 @@ export function TemplatesPage() {
           className="w-full max-w-sm"
         />
         <DataTable
+          rowSelection={bulk.selection}
+          onRowSelectionChange={bulk.setSelection}
           startIndex={((data?.page ?? 1) - 1) * list.params.pageSize}
           caption={t.caption}
           data={data?.items}
@@ -155,6 +159,15 @@ export function TemplatesPage() {
           />
         ) : null}
       </section>
+
+      <Can permission="messages.delete">
+        <BulkDeleteBar
+          resource="message-templates"
+          tag="MessageTemplate"
+          ids={bulk.ids}
+          onDone={() => bulk.setSelection({})}
+        />
+      </Can>
 
       <ConfirmDialog
         open={deleting !== null}
