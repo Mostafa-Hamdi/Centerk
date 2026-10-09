@@ -30,6 +30,7 @@ export const routes = {
     list: '/attendance',
     scan: (sessionId: Id) => `/attendance/${encodeURIComponent(sessionId)}/scan`,
     session: (sessionId: Id) => `/attendance/${encodeURIComponent(sessionId)}`,
+    excuses: '/attendance/excuses',
   },
   quizzes: resource('/quizzes'),
   questions: resource('/question-bank'),

@@ -105,6 +105,10 @@ export const navigation: NavGroup[] = [
         href: routes.attendance.list,
         icon: ClipboardCheck,
         permissions: ['attendance.view'],
+        children: [
+          { label: ar.nav.attendance, href: routes.attendance.list },
+          { label: ar.excuses.link, href: routes.attendance.excuses },
+        ],
       },
       {
         label: t.quizzes,

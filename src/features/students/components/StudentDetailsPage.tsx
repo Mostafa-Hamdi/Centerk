@@ -19,6 +19,7 @@ import { ar } from '@/i18n/ar';
 import { formatMoney, formatNumber, formatPercent, formatPhone } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
 import { useDeleteStudentMutation, useGetStudentQuery } from '../api';
+import { StudentHistoryCard } from './StudentHistoryCard';
 
 const t = ar.students;
 
@@ -176,6 +177,8 @@ export function StudentDetailsPage({ id }: { id: string }) {
           </ul>
         </Card>
       </div>
+
+      <StudentHistoryCard studentId={id} />
 
       <ConfirmDialog
         open={confirmOpen}

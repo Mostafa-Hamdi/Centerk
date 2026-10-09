@@ -307,6 +307,33 @@ export const ar = {
     save: 'حفظ الدور',
     saved: 'اتحفظ دور الموظف',
   },
+  studentHistory: {
+    attendance: 'سجل الحضور',
+    grades: 'سجل الدرجات',
+    noAttendance: 'مفيش حضور متسجل لسه',
+    noGrades: 'مفيش درجات منشورة لسه',
+  },
+  excuses: {
+    title: 'أعذار الغياب',
+    link: 'أعذار الغياب',
+    description: 'أعذار أولياء الأمور من البوابة — اعتمدها أو ارفضها',
+    student: 'الطالب',
+    viewStudent: 'عرض الطالب',
+    date: 'يوم الغياب',
+    reason: 'السبب',
+    makeup: 'عايز حصة تعويضية',
+    status: 'الحالة',
+    all: 'الكل',
+    statuses: { Pending: 'مستني الرد', Approved: 'مقبول', Rejected: 'مرفوض' } as Record<
+      string,
+      string
+    >,
+    approve: 'قبول',
+    reject: 'رفض',
+    approved: 'اتقبل العذر',
+    rejected: 'اترفض العذر',
+    empty: 'مفيش أعذار',
+  },
   documents: {
     receiptPdf: 'تحميل الإيصال PDF',
     cardPdf: 'كارت الطالب PDF',
