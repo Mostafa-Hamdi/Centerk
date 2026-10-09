@@ -1,7 +1,7 @@
 'use client';
 
 import type { RowSelectionState } from '@tanstack/react-table';
-import { Plus, Trash2, Users } from 'lucide-react';
+import { FileUp, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -86,12 +86,23 @@ export function StudentsListPage() {
           <h1 className="font-display text-2xl font-bold text-ink">{t.title}</h1>
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
-        <Can permission="students.create">
-          <Link href={routes.students.new} className={buttonVariants({ size: 'lg' })}>
-            <Plus className="size-4" aria-hidden />
-            {t.add}
-          </Link>
-        </Can>
+        <div className="flex flex-wrap gap-2">
+          <Can permission="students.import">
+            <Link
+              href={routes.students.import}
+              className={buttonVariants({ variant: 'info', size: 'lg' })}
+            >
+              <FileUp className="size-4" aria-hidden />
+              {ar.studentImport.link}
+            </Link>
+          </Can>
+          <Can permission="students.create">
+            <Link href={routes.students.new} className={buttonVariants({ size: 'lg' })}>
+              <Plus className="size-4" aria-hidden />
+              {t.add}
+            </Link>
+          </Can>
+        </div>
       </header>
 
       <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
