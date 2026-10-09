@@ -163,6 +163,11 @@ export const navigation: NavGroup[] = [
             permissions: ['payments.create'],
           },
           { label: ar.payments.dues, href: routes.dues },
+          {
+            label: ar.charges.link,
+            href: routes.charges,
+            permissions: ['payments.update', 'payments.create'],
+          },
         ],
       },
       {
@@ -272,9 +277,14 @@ export const navigation: NavGroup[] = [
         href: routes.centers.hallBookings.list,
         icon: Building2,
         permissions: ['centers.halls', 'centers.teachers', 'centers.settle'],
-        matches: [routes.centers.settlements.list],
+        matches: [routes.centers.settlements.list, routes.centers.teachers.list],
         children: [
           { label: ar.settlements.tabs.halls, href: routes.centers.hallBookings.list },
+          {
+            label: ar.teachers.tab,
+            href: routes.centers.teachers.list,
+            permissions: ['centers.teachers'],
+          },
           {
             label: ar.settlements.tabs.settlements,
             href: routes.centers.settlements.list,

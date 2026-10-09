@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Crown, LogOut, UserRound } from 'lucide-react';
+import { ChevronDown, Crown, KeyRound, LogOut, UserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/feedback/toast';
 import {
@@ -71,7 +71,11 @@ export function ProfileMenu() {
           <UserRound aria-hidden />
           {ar.shell.account}
         </DropdownItem>
-        <DropdownItem onSelect={() => router.push(routes.settings.billing)}>
+        <DropdownItem onSelect={() => router.push(routes.account.password)}>
+          <KeyRound aria-hidden />
+          {ar.account.password}
+        </DropdownItem>
+        <DropdownItem onSelect={() => router.push(routes.settings.root)}>
           <Crown aria-hidden className="text-warning" />
           {ar.shell.plan(me.tenant.plan)}
         </DropdownItem>

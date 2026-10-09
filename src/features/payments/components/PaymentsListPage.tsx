@@ -95,6 +95,12 @@ export function PaymentsListPage() {
           <p className="mt-1 text-muted">{t.description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            href={routes.charges}
+            className={buttonVariants({ variant: 'neutral', size: 'lg' })}
+          >
+            {ar.charges.link}
+          </Link>
           <Link href={routes.dues} className={buttonVariants({ variant: 'info', size: 'lg' })}>
             {t.dues}
           </Link>

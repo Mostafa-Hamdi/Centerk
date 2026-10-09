@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatCard } from '@/components/ui/StatCard';
 import { routes } from '@/config/routes';
 import { Can } from '@/features/auth/components/Can';
+import { GroupStudentsCard } from '@/features/account/components/GroupStudentsCard';
 import { ar } from '@/i18n/ar';
 import { formatMoney } from '@/lib/format';
 import { toProblem } from '@/lib/problem-details';
@@ -118,6 +119,8 @@ export function GroupDetailsPage({ id }: { id: string }) {
           <EmptyState title={t.details.noSchedule} icon={CalendarClock} className="py-6" />
         )}
       </Card>
+
+      <GroupStudentsCard groupId={id} />
     </div>
   );
 }

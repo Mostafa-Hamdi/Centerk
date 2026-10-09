@@ -4,6 +4,7 @@ import { ar } from '@/i18n/ar';
 
 const tabs = [
   { href: routes.centers.hallBookings.list, label: ar.settlements.tabs.halls },
+  { href: routes.centers.teachers.list, label: ar.teachers.tab },
   { href: routes.centers.settlements.list, label: ar.settlements.tabs.settlements },
 ] as const;
 

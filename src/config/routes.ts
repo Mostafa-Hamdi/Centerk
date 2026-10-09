@@ -19,6 +19,7 @@ export const routes = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   dashboard: '/dashboard',
+  account: { password: '/account/password' },
 
   students: { ...resource('/students'), import: '/students/import' },
   guardians: resource('/guardians'),
@@ -34,6 +35,7 @@ export const routes = {
   questions: resource('/question-bank'),
   onlineExams: resource('/online-exams'),
   payments: resource('/payments'),
+  charges: '/payments/charges',
   dues: '/payments/dues',
   cashShifts: resource('/cash-drawer'),
   expenses: resource('/expenses'),
