@@ -296,3 +296,8 @@ Automated diff of `backend-spec.md` §10 against the live Swagger (402 operation
 | Billing        | `GET /billing/subscription`, `GET /billing/invoices`, `GET /billing/invoices/{id}.pdf`, `POST /billing/invoices/{id}/pay`, `POST /billing/change-plan`      |
 
 Not blocking the current frontend phases (online payments, video, billing come later).
+
+### New request (2026-10-09) — payments list
+
+`GET /payments` items (`Payment`) have no student reference. Please add `studentId`, `studentName`, `studentCode`
+(like the other *NamedDto responses) so the payments table and receipts can show who paid.
