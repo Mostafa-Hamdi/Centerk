@@ -174,10 +174,33 @@ const materialsApi = api.injectEndpoints({
         'Due',
       ],
     }),
+    /** POST /material-deliveries/{id}/collect — cash payment for an owed delivery (Idempotency-Key). */
+    collectDelivery: build.mutation<
+      undefined,
+      { id: string; materialId: string; studentId: string; amount: number }
+    >({
+      query: ({ id, studentId, amount }) => {
+        const key = crypto.randomUUID();
+        return {
+          url: `/material-deliveries/${encodeURIComponent(id)}/collect`,
+          method: 'POST',
+          headers: { 'Idempotency-Key': key },
+          body: { studentId, amount, method: 'Cash', idempotencyKey: key },
+        };
+      },
+      transformResponse: () => undefined,
+      invalidatesTags: (_result, _error, { materialId }) => [
+        { type: 'Material', id: `DELIVERIES-${materialId}` },
+        { type: 'Payment', id: 'LIST' },
+        'Due',
+        'Dashboard',
+      ],
+    }),
   }),
 });
 
 export const {
+  useCollectDeliveryMutation,
   useGetMaterialsQuery,
   useGetMaterialQuery,
   useCreateMaterialMutation,

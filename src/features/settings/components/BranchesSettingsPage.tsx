@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BookOpen, Building2, Trash2 } from 'lucide-react';
+import { BookOpen, Building2, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -63,6 +63,7 @@ function BranchesCard() {
   const [saveBranch] = useSaveBranchMutation();
   const [deleteBranch] = useDeleteBranchMutation();
   const [deleting, setDeleting] = useState<BranchDto | null>(null);
+  const [editing, setEditing] = useState<BranchDto | null>(null);
   const form = useForm<BranchValues>({
     resolver: zodResolver(branchSchema),
     defaultValues: { name: '', address: '', phone: '' },
@@ -72,13 +73,15 @@ function BranchesCard() {
   const add = async (values: BranchValues) => {
     try {
       await saveBranch({
+        id: editing?.id,
         name: values.name,
         address: values.address || null,
         phone: values.phone || null,
-        isOpen: true,
+        isOpen: editing?.isOpen ?? true,
       }).unwrap();
       toast.success(t.branches.saved, values.name);
-      form.reset();
+      setEditing(null);
+      form.reset({ name: '', address: '', phone: '' });
     } catch (caught) {
       const problem = toProblem(caught);
       applyServerErrors(problem, form.setError, ['name', 'address', 'phone']);
@@ -125,9 +128,23 @@ function BranchesCard() {
           <FormField label={t.branches.address} error={errors.address?.message}>
             {(control) => <Input {...control} {...form.register('address')} />}
           </FormField>
-          <Button type="submit" loading={isSubmitting}>
-            {t.branches.add}
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" loading={isSubmitting}>
+              {editing ? ar.common.save : t.branches.add}
+            </Button>
+            {editing ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setEditing(null);
+                  form.reset({ name: '', address: '', phone: '' });
+                }}
+              >
+                {ar.common.cancel}
+              </Button>
+            ) : null}
+          </div>
         </form>
       </Can>
       {error ? (
@@ -157,6 +174,20 @@ function BranchesCard() {
                     checked={branch.isOpen}
                     onCheckedChange={(checked) => void toggle(branch, checked)}
                     label={<span className="sr-only">{`${t.branches.open}: ${branch.name}`}</span>}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label={`${ar.common.edit} ${branch.name}`}
+                    iconStart={<Pencil aria-hidden />}
+                    onClick={() => {
+                      setEditing(branch);
+                      form.reset({
+                        name: branch.name,
+                        address: branch.address ?? '',
+                        phone: branch.phone ?? '',
+                      });
+                    }}
                   />
                   <Button
                     size="sm"
@@ -218,6 +249,7 @@ function SubjectsCard() {
   const [saveSubject] = useSaveSubjectMutation();
   const [deleteSubject] = useDeleteSubjectMutation();
   const [deleting, setDeleting] = useState<SubjectDto | null>(null);
+  const [editing, setEditing] = useState<SubjectDto | null>(null);
   const form = useForm<SubjectInput, unknown, SubjectValues>({
     resolver: zodResolver(subjectSchema),
     defaultValues: { name: '', defaultPrice: '' },
@@ -226,9 +258,14 @@ function SubjectsCard() {
 
   const add = async (values: SubjectValues) => {
     try {
-      await saveSubject({ ...values, isActive: true }).unwrap();
+      await saveSubject({
+        id: editing?.id,
+        ...values,
+        isActive: editing?.isActive ?? true,
+      }).unwrap();
       toast.success(t.subjects.saved, values.name);
-      form.reset();
+      setEditing(null);
+      form.reset({ name: '', defaultPrice: '' });
     } catch (caught) {
       const problem = toProblem(caught);
       applyServerErrors(problem, form.setError, ['name', 'defaultPrice']);
@@ -269,9 +306,23 @@ function SubjectsCard() {
               />
             )}
           </FormField>
-          <Button type="submit" loading={isSubmitting}>
-            {t.subjects.add}
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" loading={isSubmitting}>
+              {editing ? ar.common.save : t.subjects.add}
+            </Button>
+            {editing ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setEditing(null);
+                  form.reset({ name: '', defaultPrice: '' });
+                }}
+              >
+                {ar.common.cancel}
+              </Button>
+            ) : null}
+          </div>
         </form>
       </Can>
       {error ? (
@@ -292,13 +343,29 @@ function SubjectsCard() {
                 ) : null}
               </p>
               <Can permission="settings.update">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  aria-label={`${ar.common.delete} ${subject.name}`}
-                  iconStart={<Trash2 aria-hidden />}
-                  onClick={() => setDeleting(subject)}
-                />
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label={`${ar.common.edit} ${subject.name}`}
+                    iconStart={<Pencil aria-hidden />}
+                    onClick={() => {
+                      setEditing(subject);
+                      form.reset({
+                        name: subject.name,
+                        defaultPrice:
+                          subject.defaultPrice === null ? '' : String(subject.defaultPrice),
+                      });
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label={`${ar.common.delete} ${subject.name}`}
+                    iconStart={<Trash2 aria-hidden />}
+                    onClick={() => setDeleting(subject)}
+                  />
+                </div>
               </Can>
             </li>
           ))}

@@ -9,6 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { DataTable } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
 import { toast } from '@/components/feedback/toast';
 import { FormField } from '@/components/form/FormField';
 import { Badge } from '@/components/ui/Badge';
@@ -32,6 +33,7 @@ import {
   isLowStock,
   MOVEMENT_TYPES,
   useAddStockMovementMutation,
+  useCollectDeliveryMutation,
   useDeliverMaterialMutation,
   useGetDeliveriesQuery,
   useGetMaterialQuery,
@@ -282,6 +284,8 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
     filters: {},
   });
   const [deliver] = useDeliverMaterialMutation();
+  const [collect] = useCollectDeliveryMutation();
+  const [collecting, setCollecting] = useState<DeliveryDto | null>(null);
   const form = useForm<z.input<typeof deliverySchema>, unknown, z.output<typeof deliverySchema>>({
     resolver: zodResolver(deliverySchema),
     defaultValues: {
@@ -322,6 +326,23 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
         header: t.details.deliveredAt,
         cell: ({ getValue }) =>
           getValue<string | null>() ? formatDateTime(getValue<string>()) : '—',
+      },
+      {
+        id: 'collect',
+        header: '',
+        cell: ({ row }) =>
+          row.original.paymentStatus === 'Owed' && row.original.studentId ? (
+            <Can permission="payments.create">
+              <Button
+                size="sm"
+                variant="success"
+                iconStart={<Banknote aria-hidden />}
+                onClick={() => setCollecting(row.original)}
+              >
+                {t.details.collect}
+              </Button>
+            </Can>
+          ) : null,
       },
     ],
     [],
@@ -441,6 +462,33 @@ function DeliveriesSection({ material }: { material: MaterialDto }) {
           onPageSizeChange={() => undefined}
         />
       ) : null}
+      <ConfirmDialog
+        open={collecting !== null}
+        onOpenChange={(open) => {
+          if (!open) setCollecting(null);
+        }}
+        title={t.details.collect}
+        questionPrefix={t.details.collectQuestion}
+        itemName={`${collecting?.studentName ?? ''} · ${formatMoney(material.price)}`}
+        description={t.details.collectDesc}
+        confirmLabel={t.details.collect}
+        tone="warning"
+        onConfirm={async () => {
+          if (!collecting?.studentId) return;
+          try {
+            await collect({
+              id: collecting.id,
+              materialId: material.id,
+              studentId: collecting.studentId,
+              amount: material.price,
+            }).unwrap();
+            toast.success(t.details.collected, formatMoney(material.price));
+          } catch (caught) {
+            toast.error(toProblem(caught).title);
+            throw caught;
+          }
+        }}
+      />
     </section>
   );
 }

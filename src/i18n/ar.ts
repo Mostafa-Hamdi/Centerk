@@ -679,6 +679,10 @@ export const ar = {
       student: 'الطالب',
       payment: 'الدفع',
       delivered: 'اتسلمت المذكرة',
+      collect: 'تحصيل',
+      collectQuestion: 'تحصيل تمن المذكرة من',
+      collectDesc: 'هيتسجل إيصال كاش بالمبلغ على الوردية المفتوحة.',
+      collected: 'اتحصّل تمن المذكرة',
       deliveredAt: 'وقت التسليم',
     },
     movementTypes: {
