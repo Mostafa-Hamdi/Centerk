@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from '@/components/feedback/toast';
 import { FormActions } from '@/components/form/FormActions';
@@ -22,10 +22,14 @@ import { useAppSelector } from '@/store/hooks';
 import {
   useCreateGroupMutation,
   useGetGroupQuery,
+  useGetGroupScheduleQuery,
   useGetHallsQuery,
   useUpdateGroupMutation,
 } from '../api';
+import { useReplaceScheduleMutation } from '../scheduleApi';
 import { groupFormSchema, type GroupFormInput, type GroupFormValues } from '../schemas';
+import type { WeeklySlotDto } from '../types';
+import { ScheduleEditor, slotError } from './ScheduleEditor';
 
 const t = ar.groups;
 const REDIRECT_DELAY_MS = 1200;
@@ -52,6 +56,10 @@ export function GroupFormPage({ id }: { id?: string }) {
   const halls = useGetHallsQuery(branchId ?? undefined);
   const [createGroup] = useCreateGroupMutation();
   const [updateGroup] = useUpdateGroupMutation();
+  const schedule = useGetGroupScheduleQuery(id ?? '', { skip: !id });
+  const [replaceSchedule] = useReplaceScheduleMutation();
+  const [slots, setSlots] = useState<WeeklySlotDto[]>([]);
+  const [slotsDirty, setSlotsDirty] = useState(false);
   const form = useForm<GroupFormInput, unknown, GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
     mode: 'onBlur',
@@ -81,6 +89,10 @@ export function GroupFormPage({ id }: { id?: string }) {
     }
   }, [group.data, form]);
 
+  useEffect(() => {
+    if (schedule.data) setSlots(schedule.data);
+  }, [schedule.data]);
+
   if (editing && group.error) {
     return (
       <ErrorState
@@ -89,10 +101,19 @@ export function GroupFormPage({ id }: { id?: string }) {
       />
     );
   }
-  if (editing && !group.data)
+  if (editing && (!group.data || schedule.isLoading))
     return <Skeleton className="mx-auto h-[28rem] w-full max-w-5xl rounded-xl" />;
 
   const save = async (values: GroupFormValues) => {
+    if (slots.some(slotError)) {
+      toast.error(t.schedule.invalid);
+      throw new Error('invalid schedule');
+    }
+    // "Group hall" rows are sent with the group's hall.
+    const weekly = slots.map((slot) => ({
+      ...slot,
+      hallId: slot.hallId ?? (values.hallId || null),
+    }));
     try {
       if (id) {
         await updateGroup({
@@ -105,9 +126,10 @@ export function GroupFormPage({ id }: { id?: string }) {
             teacherId: values.teacherId,
           },
         }).unwrap();
+        if (slotsDirty) await replaceSchedule({ id, slots: weekly }).unwrap();
         toast.success(t.form.updated, values.name);
       } else {
-        await createGroup({
+        const created = await createGroup({
           name: values.name,
           subject: values.subject,
           grade: values.grade,
@@ -117,6 +139,19 @@ export function GroupFormPage({ id }: { id?: string }) {
           teacherId: values.teacherId,
           branchId: branchId ?? undefined,
         }).unwrap();
+        if (weekly.length) {
+          try {
+            await replaceSchedule({ id: created.id, slots: weekly }).unwrap();
+          } catch (caught) {
+            // The group exists already — continue on its edit page instead of creating it twice.
+            toast.error(t.schedule.saveFailed, toProblem(caught).detail);
+            window.setTimeout(
+              () => router.replace(routes.groups.edit(created.id)),
+              REDIRECT_DELAY_MS,
+            );
+            return;
+          }
+        }
         toast.success(t.form.created, values.name);
       }
       window.setTimeout(() => router.replace(routes.groups.list), REDIRECT_DELAY_MS);
@@ -149,7 +184,7 @@ export function GroupFormPage({ id }: { id?: string }) {
         <FormActions
           cancelHref={id ? routes.groups.detail(id) : routes.groups.list}
           submitting={isSubmitting || isSubmitSuccessful}
-          dirty={isDirty && !isSubmitSuccessful}
+          dirty={(isDirty || slotsDirty) && !isSubmitSuccessful}
         />
       }
     >
@@ -243,6 +278,17 @@ export function GroupFormPage({ id }: { id?: string }) {
             />
           )}
         </FormField>
+      </FormSection>
+
+      <FormSection title={t.schedule.section} description={t.schedule.sectionDesc}>
+        <ScheduleEditor
+          slots={slots}
+          halls={hallOptions}
+          onChange={(next) => {
+            setSlots(next);
+            setSlotsDirty(true);
+          }}
+        />
       </FormSection>
     </FormPage>
   );
